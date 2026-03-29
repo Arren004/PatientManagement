@@ -6,6 +6,8 @@ import { STORAGE_KEY, DEFAULT_STATE } from "../data/constants.js";
 
 class StateService {
   constructor() {
+    // Reset localStorage khi load trang để tránh dữ liệu cũ sai lệch
+    localStorage.removeItem(STORAGE_KEY);
     this.state = this.loadState();
     this.listeners = [];
   }
@@ -42,9 +44,17 @@ class StateService {
     this.listeners.forEach((cb) => cb(this.state));
   }
 
+
   // Lấy state hiện tại
   getState() {
     return this.state;
+  }
+
+  // Ghi đè setState để log giá trị mới
+  setState(newState) {
+    this.state = newState;
+    console.log("[StateService] setState:", this.state); // DEBUG LOG
+    this.saveState();
   }
 
   // Reset state về mặc định

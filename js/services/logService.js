@@ -4,6 +4,7 @@
 
 import stateService from "./stateService.js";
 import authService from "./authService.js";
+import firebaseService from "./firebaseService.js";
 
 class LogService {
   // Lấy danh sách delivery logs
@@ -11,10 +12,14 @@ class LogService {
     return stateService.getState().deliveryLogs || [];
   }
 
-  // Lấy danh sách system logs
-  getSystemLogs() {
-    stateService.ensureSystemLogsValid();
-    return stateService.getState().systemLogs || [];
+  // Lấy danh sách system logs từ Firestore
+  async getSystemLogs() {
+    const logs = await firebaseService.getSystemLogsFromCloud();
+    // Đảm bảo có trường at (thời gian) cho sorting/filter
+    return logs.map(x => ({
+      ...x,
+      at: x.at || (x.createdAt && x.createdAt.toDate ? x.createdAt.toDate().toISOString().slice(0, 16).replace('T', ' ') : "")
+    }));
   }
 
   // Lọc delivery logs
@@ -43,9 +48,9 @@ class LogService {
     return logs;
   }
 
-  // Lọc system logs
-  filterSystemLogs(filters = {}) {
-    let logs = this.getSystemLogs();
+  // Lọc system logs (bất đồng bộ)
+  async filterSystemLogs(filters = {}) {
+    let logs = await this.getSystemLogs();
 
     // Lọc theo kết quả
     if (filters.result && filters.result !== "all") {
@@ -59,7 +64,7 @@ class LogService {
 
     // Lọc theo ngày
     if (filters.date && filters.date.trim()) {
-      logs = logs.filter((x) => x.at.slice(0, 10) === filters.date);
+      logs = logs.filter((x) => x.at && x.at.slice(0, 10) === filters.date);
     }
 
     // Tìm kiếm
@@ -74,14 +79,9 @@ class LogService {
     return logs;
   }
 
-  // Thêm system log
-  addSystemLog(module, action, result, detail = "") {
-    stateService.ensureSystemLogsValid();
-    const state = stateService.getState();
-    const nextId = state.systemLogs.length ? Math.max(...state.systemLogs.map((x) => x.id || 0)) + 1 : 1;
-
-    state.systemLogs.unshift({
-      id: nextId,
+  // Thêm system log lên Firestore
+  async addSystemLog(module, action, result, detail = "") {
+    const log = {
       at: this.getNowForLog(),
       actor: authService.getCurrentUser() ? authService.getCurrentUser().fullName : "Khách",
       role: authService.getCurrentUser() ? authService.getCurrentUser().role : "system",
@@ -89,14 +89,8 @@ class LogService {
       action,
       result,
       detail,
-    });
-
-    // Giữ tối đa 300 log
-    if (state.systemLogs.length > 300) {
-      state.systemLogs = state.systemLogs.slice(0, 300);
-    }
-
-    stateService.saveState();
+    };
+    await firebaseService.addSystemLogToCloud(log);
   }
 
   // Lấy giờ hiện tại định dạng log

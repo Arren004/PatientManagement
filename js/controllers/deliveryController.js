@@ -28,16 +28,15 @@ class DeliveryController {
   }
 
   setupEventListeners() {
-    const patients = patientService.getPatients();
+    // Chỉ lấy bệnh nhân đang nhập viện
+    const patients = patientService.getPatients().filter(p => p.status === 'admitted');
     const bins = deliveryService.getDeliveryBins();
 
-    // Patient search controls - searchable autocomplete
+    // Patient search controls - modal
     this.viewContainer.querySelectorAll(".delivery-control-patient-search").forEach((input) => {
       const index = Number(input.dataset.index);
       const hiddenInput = this.viewContainer.querySelector(`.delivery-control-patient-id[data-index="${index}"]`);
-      const dropdown = this.viewContainer.querySelector(`.patient-dropdown-list[data-index="${index}"]`);
-      
-      // Restore previous patient selection
+      // Hiển thị tên nếu đã chọn
       const currentPatientId = bins[index].patientId;
       if (currentPatientId) {
         const patient = patients.find(p => String(p.id) === String(currentPatientId));
@@ -47,70 +46,70 @@ class DeliveryController {
         }
       }
 
-      // Helper function to render patient list
-      const renderPatientList = (patientsToShow) => {
-        dropdown.innerHTML = "";
+      input.addEventListener("click", () => {
+        const modal = document.getElementById("patient-select-modal");
+        if (!modal) return;
+        modal.style.display = "flex";
+        renderPatientModalList("");
 
-        if (patientsToShow.length === 0) {
-          dropdown.innerHTML = '<div class="dropdown-no-result">Không tìm thấy bệnh nhân</div>';
-          dropdown.classList.add("show");
-          return;
-        }
+        // Xử lý chọn bệnh nhân trong modal
+        function renderPatientModalList(search) {
+          const list = modal.querySelector("#patient-modal-list");
+          let filtered = patients;
+          if (search && search.trim()) {
+            const s = search.toLowerCase();
+            filtered = patients.filter(p =>
+              p.name.toLowerCase().includes(s) || (p.room && String(p.room).toLowerCase().includes(s))
+            );
+          }
+          // Phân trang
+          const pageSize = 10;
+          let page = window.patientModalPage || 1;
+          const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+          if (page > totalPages) page = totalPages;
+          window.patientModalPage = page;
+          const paged = filtered.slice((page-1)*pageSize, page*pageSize);
 
-        patientsToShow.forEach((patient) => {
-          const item = document.createElement("div");
-          item.className = "dropdown-item";
-          item.innerHTML = `<strong>${patient.name}</strong><span>Room ${patient.room}, Bed ${patient.bed}</span>`;
-          
-          item.addEventListener("click", () => {
-            input.value = patient.name;
-            hiddenInput.value = patient.id;
-            dropdown.innerHTML = "";
-            dropdown.classList.remove("show");
-            deliveryService.updateBin(index, "patientId", patient.id);
-            this.updateReadyState();
+          list.innerHTML = paged.map(p => `<div class="dropdown-item patient-modal-item" data-id="${p.id}" style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #eee;"><strong>${p.name}</strong><span style='margin-left:8px;color:#888;'>Phòng ${p.room}, Giường ${p.bed}</span></div>`).join("")
+            + (filtered.length === 0 ? '<div class="dropdown-no-result">Không tìm thấy bệnh nhân</div>' : "");
+          // Phân trang controls
+          list.innerHTML += `<div style='text-align:center;margin-top:8px;'>
+            <button id='modal-prev-page' ${page===1?'disabled':''} style='margin:0 4px;'>◀</button>
+            Trang <b>${page}</b> / ${totalPages}
+            <button id='modal-next-page' ${page===totalPages?'disabled':''} style='margin:0 4px;'>▶</button>
+          </div>`;
+
+          // Gán event chọn
+          list.querySelectorAll('.patient-modal-item').forEach(item => {
+            item.onclick = () => {
+              const id = item.getAttribute('data-id');
+              const patient = patients.find(p => String(p.id) === String(id));
+              if (patient) {
+                input.value = patient.name;
+                hiddenInput.value = patient.id;
+                deliveryService.updateBin(index, "patientId", patient.id);
+                modal.style.display = "none";
+                this.updateReadyState();
+              }
+            };
           });
-
-          dropdown.appendChild(item);
-        });
-
-        dropdown.classList.add("show");
-      };
-
-      // Focus event - show all patients
-      input.addEventListener("focus", () => {
-        renderPatientList(patients);
-      });
-
-      // Input event for filtering
-      input.addEventListener("input", (e) => {
-        const searchTerm = e.target.value.toLowerCase();
-
-        if (searchTerm.length === 0) {
-          renderPatientList(patients);
-          return;
+          // Phân trang event
+          list.querySelector('#modal-prev-page')?.addEventListener('click',()=>{window.patientModalPage=Math.max(1,page-1);renderPatientModalList(modal.querySelector('#patient-modal-search').value);});
+          list.querySelector('#modal-next-page')?.addEventListener('click',()=>{window.patientModalPage=Math.min(totalPages,page+1);renderPatientModalList(modal.querySelector('#patient-modal-search').value);});
         }
 
-        // Filter patients based on search term
-        const filtered = patients.filter((p) =>
-          p.name.toLowerCase().includes(searchTerm)
-        );
+        // Tìm kiếm
+        const searchInput = modal.querySelector('#patient-modal-search');
+        searchInput.value = "";
+        searchInput.oninput = (e) => {
+          window.patientModalPage = 1;
+          renderPatientModalList(e.target.value);
+        };
 
-        renderPatientList(filtered);
-      });
-
-      // Close dropdown on blur
-      input.addEventListener("blur", () => {
-        setTimeout(() => {
-          dropdown.classList.remove("show");
-        }, 200);
-      });
-
-      // Close dropdown on Escape key
-      input.addEventListener("keydown", (e) => {
-        if (e.key === "Escape") {
-          dropdown.classList.remove("show");
-        }
+        // Đóng modal
+        modal.querySelector('#patient-modal-cancel').onclick = () => {
+          modal.style.display = "none";
+        };
       });
     });
 

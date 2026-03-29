@@ -5,11 +5,78 @@
 import stateService from "./stateService.js";
 import authService from "./authService.js";
 import logService from "./logService.js";
+import firebaseService from "./firebaseService.js";
 
 class NurseService {
+  constructor() {
+    this.nursesCache = [];
+    this.defaultEmailDomain = "reto.com";
+  }
+
+  resolveAccountDisplay(entry, currentUser) {
+    if (entry.email && String(entry.email).includes("@")) {
+      return entry.email;
+    }
+
+    if (entry.username) {
+      const username = String(entry.username).trim();
+      if (username.includes("@")) {
+        return username;
+      }
+      if (username.length > 0) {
+        return `${username}@${this.defaultEmailDomain}`;
+      }
+    }
+
+    if (currentUser && String(currentUser.uid) === String(entry.id) && currentUser.email) {
+      return currentUser.email;
+    }
+
+    // Không hiển thị UID ở cột tài khoản để tránh khó đọc.
+    return "(chua cap nhat email)";
+  }
+
   // Lấy danh sách y tá
   getNurses() {
-    return stateService.getState().users || [];
+    return this.nursesCache;
+  }
+
+  // Đồng bộ danh sách y tá từ Firebase
+  async syncNursesFromCloud() {
+    const collections = ["Users", "users"];
+    const errors = [];
+    const currentUser = authService.getCurrentUser();
+
+    for (const collectionName of collections) {
+      const result = await firebaseService.getCollection(collectionName);
+      if (result.success) {
+        this.nursesCache = (result.data || []).map((entry) => ({
+          id: entry.id,
+          fullName: entry.fullName || entry.name || "(Chua co ten)",
+          username: this.resolveAccountDisplay(entry, currentUser),
+          role: entry.role || "nurse",
+          status: entry.status === "inactive" ? "dừng hoạt động" : (entry.status || "active"),
+        }));
+        return { success: true, data: this.nursesCache };
+      }
+
+      errors.push({ collectionName, code: result.code, error: result.error });
+    }
+
+    // Fallback local để không làm vỡ màn hình nếu Firebase chưa sẵn sàng
+    const localUsers = stateService.getState().users || [];
+    this.nursesCache = localUsers.map((entry) => ({ ...entry }));
+
+    const permissionDenied = errors.find((entry) => entry.code === "permission-denied");
+    if (permissionDenied) {
+      return {
+        success: false,
+        message: `Khong du quyen doc danh sach y ta tu collection ${permissionDenied.collectionName}. Kiem tra Firestore Rules.`,
+        data: this.nursesCache,
+      };
+    }
+
+    return { success: false, message: "Khong the doc du lieu tu Firebase. Dang hien du lieu local.", data: this.nursesCache };
   }
 
   // Lọc y tá theo điều kiện
@@ -23,7 +90,11 @@ class NurseService {
 
     // Lọc theo trạng thái
     if (filters.status && filters.status !== "all") {
-      nurses = nurses.filter((u) => u.status === filters.status);
+      if (filters.status === "inactive") {
+        nurses = nurses.filter((u) => u.status === "dừng hoạt động");
+      } else {
+        nurses = nurses.filter((u) => u.status === filters.status);
+      }
     }
 
     // Tìm kiếm toàn bộ text
@@ -40,89 +111,64 @@ class NurseService {
 
   // Lấy y tá theo ID
   getNurseById(id) {
-    return this.getNurses().find((u) => u.id === id);
+    return this.getNurses().find((u) => String(u.id) === String(id));
   }
 
-  // Thêm y tá mới
-  addNurse(nurseData) {
+  // Thêm y tá mới: tạo Auth user + tạo profile Users/{uid}
+  async addNurse(nurseData) {
     if (!authService.can("nurses.create")) {
-      logService.addSystemLog("nurses", "Thêm tài khoản y tá", "denied", "Không đủ quyền");
       return { success: false, message: "Không có quyền thêm tài khoản y tá." };
     }
 
-    const { fullName, username, password } = nurseData;
+    const fullName = String(nurseData.fullName || "").trim();
+    const rawUsername = String(nurseData.username || "").trim();
+    const password = String(nurseData.password || "").trim();
 
-    if (!fullName || !username || !password) {
+    if (!fullName || !rawUsername || !password) {
       return { success: false, message: "Vui lòng nhập đủ tên, tài khoản, mật khẩu." };
     }
 
-    const state = stateService.getState();
-    if (state.users.some((u) => u.username.toLowerCase() === username.toLowerCase())) {
-      return { success: false, message: "Username đã tồn tại." };
+    if (password.length < 6) {
+      return { success: false, message: "Mật khẩu phải có ít nhất 6 ký tự." };
     }
 
-    const nextId = state.users.length ? Math.max(...state.users.map((u) => u.id)) + 1 : 1;
-    state.users.push({
-      id: nextId,
+    const email = rawUsername.includes("@") ? rawUsername : `${rawUsername}@${this.defaultEmailDomain}`;
+    const username = email.split("@")[0];
+    //Kiểm tra xem user đã tồn tại 
+    const existed = await firebaseService.findUserByUsername(username);
+    if (existed.success && existed.found) {
+      return { success: false, message: "Tài khoản đã tồn tại." };
+    }
+
+    const createAuthResult = await firebaseService.createAuthUser(email, password);
+    if (!createAuthResult.success) {
+      if (createAuthResult.code === "auth/email-already-in-use") {
+        return { success: false, message: "Email/tài khoản đã tồn tại trên hệ thống." };
+      }
+      return { success: false, message: "Không thể tạo tài khoản đăng nhập Firebase." };
+    }
+
+    const profileResult = await firebaseService.createUserProfile(createAuthResult.user.uid, {
       fullName,
       username,
-      password,
-      role: "nurse",
+      email,
+      role: nurseData.role === "head_nurse" ? "head_nurse" : "nurse",
       status: "active",
     });
 
-    stateService.saveState();
-    logService.addSystemLog("nurses", "Thêm tài khoản y tá", "success", `Username: ${username}`);
+    if (!profileResult.success) {
+      return { success: false, message: "Tạo tài khoản thành công nhưng lỗi tạo hồ sơ người dùng." };
+    }
+
+    await this.syncNursesFromCloud();
+    logService.addSystemLog("nurses", "Thêm tài khoản y tá", "success", `Tạo tài khoản: ${email}`);
     return { success: true, message: "Đã thêm tài khoản y tá." };
   }
 
-  // Sửa thông tin y tá
-  editNurse(id, nurseData) {
-    if (!authService.can("nurses.edit")) {
-      logService.addSystemLog("nurses", "Sửa tài khoản y tá", "denied", `ID: ${id}`);
-      return { success: false, message: "Không có quyền sửa tài khoản y tá." };
-    }
 
-    const nurse = this.getNurseById(id);
-    if (!nurse) {
-      return { success: false, message: "Không tìm thấy y tá." };
-    }
-
-    const { fullName, status } = nurseData;
-    if (fullName) nurse.fullName = fullName;
-    if (status && ["active", "inactive"].includes(status)) nurse.status = status;
-
-    stateService.saveState();
-    logService.addSystemLog("nurses", "Sửa tài khoản y tá", "success", `ID: ${id}`);
-    return { success: true, message: "Đã cập nhật thông tin y tá." };
-  }
-
-  // Đổi mật khẩu
-  changePassword(id, newPassword) {
-    if (!authService.can("nurses.password")) {
-      logService.addSystemLog("nurses", "Đổi mật khẩu y tá", "denied", `ID: ${id}`);
-      return { success: false, message: "Không có quyền đổi mật khẩu y tá." };
-    }
-
-    const nurse = this.getNurseById(id);
-    if (!nurse) {
-      return { success: false, message: "Không tìm thấy y tá." };
-    }
-
-    if (!newPassword || newPassword.trim().length === 0) {
-      return { success: false, message: "Mật khẩu không được rỗng." };
-    }
-
-    nurse.password = newPassword;
-    stateService.saveState();
-    logService.addSystemLog("nurses", "Đổi mật khẩu y tá", "success", `ID: ${id}`);
-    return { success: true, message: "Đã đổi mật khẩu." };
-  }
-
-  // Xóa y tá
-  deleteNurse(id) {
+  // Soft delete: chuyển status inactive thay vì xóa Auth user.
+  async deleteNurse(id) {
     if (!authService.can("nurses.delete")) {
-      logService.addSystemLog("nurses", "Xóa tài khoản y tá", "denied", `ID: ${id}`);
       return { success: false, message: "Không có quyền xóa tài khoản y tá." };
     }
 
@@ -131,18 +177,19 @@ class NurseService {
       return { success: false, message: "Không tìm thấy y tá." };
     }
 
-    const state = stateService.getState();
-    const headNurseCount = state.users.filter((u) => u.role === "head_nurse").length;
-
-    if (nurse.role === "head_nurse" && headNurseCount <= 2) {
-      return { success: false, message: "Phải giữ tối thiểu 2 tài khoản y tá trưởng." };
+    if (nurse.role === "head_nurse") {
+      return { success: false, message: "Không cho xóa trực tiếp tài khoản y tá trưởng." };
     }
 
-    state.users = state.users.filter((u) => u.id !== id);
-    stateService.saveState();
-    logService.addSystemLog("nurses", "Xóa tài khoản y tá", "success", `ID: ${id}`);
-    return { success: true, message: "Đã xóa tài khoản.", deletedCurrentUser: authService.getCurrentUser()?.id === id };
+    const result = await firebaseService.updateUserProfile(id, { status: "inactive" });
+    if (!result.success) {
+      return { success: false, message: "Không thể cập nhật trạng thái tài khoản." };
+    }
+
+    await this.syncNursesFromCloud();
+    return { success: true, message: "Đã vô hiệu hóa tài khoản y tá.", deletedCurrentUser: false };
   }
+
 }
 
 export default new NurseService();

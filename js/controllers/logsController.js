@@ -17,7 +17,7 @@ class LogsController {
     // Render sẽ được gọi khi switch view
   }
 
-  renderView(searchQuery = "") {
+  async renderView(searchQuery = "") {
     // Đảm bảo system log view chỉ dành cho head_nurse
     if (this.activeTab === "system" && !authService.can("logs.system.view")) {
       this.activeTab = "delivery";
@@ -33,11 +33,22 @@ class LogsController {
         search: searchQuery,
       });
     } else {
-      systemLogs = logService.filterSystemLogs({
+      // Lấy log hệ thống từ Firestore (KHÔNG còn lấy/gộp loginHistory)
+      systemLogs = await logService.filterSystemLogs({
         result: this.filters.result,
         module: this.filters.module,
         date: this.filters.date,
         search: searchQuery,
+      });
+      // Sắp xếp theo thời gian giảm dần (mới nhất lên đầu)
+      systemLogs = systemLogs.sort((a, b) => {
+        // Ưu tiên trường at, fallback sang createdAt nếu có
+        const getTime = (x) => {
+          if (x.at) return new Date(x.at).getTime();
+          if (x.createdAt && x.createdAt.toDate) return x.createdAt.toDate().getTime();
+          return 0;
+        };
+        return getTime(b) - getTime(a);
       });
     }
 

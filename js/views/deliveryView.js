@@ -8,6 +8,21 @@ export function renderDeliveryView(container, deliveryBins, patients, readyBinsC
   const canEditDelivery = authService.can("delivery.edit");
   const canStartDelivery = authService.can("delivery.start");
 
+  // Modal chọn bệnh nhân (ẩn mặc định)
+  const admittedPatients = patients.filter(p => p.status === "admitted");
+  const patientModal = `
+    <div id="patient-select-modal" class="modal-overlay" style="display:none;z-index:1000;">
+      <div class="modal-card" style="max-width:520px;min-width:340px;">
+        <h3>Chọn bệnh nhân</h3>
+        <input id="patient-modal-search" type="text" placeholder="Tìm tên bệnh nhân..." style="width:100%;margin-bottom:10px;padding:8px 12px;font-size:1rem;" />
+        <div id="patient-modal-list" style="max-height:320px;overflow-y:auto;"></div>
+        <div style="text-align:right;margin-top:10px;">
+          <button id="patient-modal-cancel" class="ghost-btn" type="button">Đóng</button>
+        </div>
+      </div>
+    </div>
+  `;
+
   const compartments = deliveryBins
     .map((bin, index) => {
       const patient = patients.find((p) => String(p.id) === String(bin.patientId));
@@ -31,12 +46,12 @@ export function renderDeliveryView(container, deliveryBins, patients, readyBinsC
               type="text" 
               class="delivery-control-patient-search" 
               data-index="${index}" 
-              placeholder="Nhập tên bệnh nhân..." 
-              autocomplete="off"
+              placeholder="Nhấn để chọn bệnh nhân..." 
+              readonly
+              style="cursor:pointer;background:#f3f4f6;"
               ${canEditDelivery ? "" : "disabled"} />
-            <div class="patient-dropdown-list" data-index="${index}"></div>
+            <input type="hidden" class="delivery-control-patient-id" data-index="${index}" value="${bin.patientId}">
           </div>
-          <input type="hidden" class="delivery-control-patient-id" data-index="${index}" value="${bin.patientId}">
         </div>
 
         <div class="field-wrap">
@@ -67,5 +82,6 @@ export function renderDeliveryView(container, deliveryBins, patients, readyBinsC
       </div>
       <button id="start-delivery-btn" ${(readyBinsCount && canStartDelivery) ? "" : "disabled"} ${canStartDelivery ? "" : "title='Không có quyền gửi lệnh giao thuốc'"}><i class="fa-regular fa-paper-plane" aria-hidden="true"></i><span>Bắt đầu nhiệm vụ</span></button>
     </div>
+    ${patientModal}
   `;
 }

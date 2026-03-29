@@ -9,6 +9,12 @@
 // - Utils: formatters, UI helpers
 // ============================================
 
+// Import Firebase config trước tiên
+import "./firebase-config.js";
+
+
+import stateService from "./services/stateService.js";
+window.stateService = stateService;
 import appController from "./controllers/appController.js";
 
 // Khởi tạo ứng dụng

@@ -48,7 +48,6 @@ export function renderLogsView(
         <h2>Nhật ký & thống kê</h2>
         <p>Theo dõi hiệu suất giao thuốc tự động</p>
       </div>
-      <button id="export-log-btn" ${authService.can("logs.export") ? "" : "disabled title='Không có quyền xuất dữ liệu'"}><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i><span>Xuất CSV</span></button>
     </div>
 
     <div class="card tabs-row">

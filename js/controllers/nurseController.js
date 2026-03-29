@@ -18,7 +18,12 @@ class NurseController {
     // Render sẽ được gọi khi switch view
   }
 
-  renderView(searchQuery = "") {
+  async renderView(searchQuery = "") {
+    const syncResult = await nurseService.syncNursesFromCloud();
+    if (!syncResult.success) {
+      showToast(syncResult.message || "Khong the dong bo danh sach y ta tu Firebase.");
+    }
+
     // Lọc y tá
     const filteredNurses = nurseService.filterNurses({
       role: this.filters.role,
@@ -78,35 +83,25 @@ class NurseController {
       applyBtn.addEventListener("click", () => {
         this.filters.role = roleFilter.value;
         this.filters.status = statusFilter.value;
-        this.renderView();
+        this.renderView().catch((error) => {
+          console.error("[NurseController] renderView error:", error);
+        });
       });
     }
 
     if (resetBtn) {
       resetBtn.addEventListener("click", () => {
         this.filters = { role: "all", status: "all" };
-        this.renderView();
+        this.renderView().catch((error) => {
+          console.error("[NurseController] renderView error:", error);
+        });
       });
     }
 
-    // Edit, change password, delete buttons
-    this.viewContainer.querySelectorAll(".edit-nurse-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        const id = Number(btn.dataset.id);
-        this.handleEditNurse(id);
-      });
-    });
-
-    this.viewContainer.querySelectorAll(".change-password-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = Number(btn.dataset.id);
-        this.handleChangePassword(id);
-      });
-    });
-
+    // Kiểm tra nút ấn delete nếu có ấn thì gọi handleDeleteNurse
     this.viewContainer.querySelectorAll(".delete-nurse-btn").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const id = Number(btn.dataset.id);
+        const id = btn.dataset.id;
         this.handleDeleteNurse(id);
       });
     });
@@ -114,22 +109,27 @@ class NurseController {
 
   openModal() {
     this.isModalVisible = true;
-    this.renderView();
+    this.renderView().catch((error) => {
+      console.error("[NurseController] renderView error:", error);
+    });
   }
 
   closeModal() {
     this.isModalVisible = false;
-    this.renderView();
+    this.renderView().catch((error) => {
+      console.error("[NurseController] renderView error:", error);
+    });
   }
 
-  handleFormSubmit(event) {
+  async handleFormSubmit(event) {
     event.preventDefault();
     const form = event.currentTarget;
 
-    const result = nurseService.addNurse({
+    const result = await nurseService.addNurse({
       fullName: form.fullName.value.trim(),
       username: form.username.value.trim(),
       password: form.password.value.trim(),
+      role: form.role.value || "nurse",
     });
 
     if (!result.success) {
@@ -141,56 +141,15 @@ class NurseController {
     this.closeModal();
   }
 
-  handleEditNurse(id) {
-    if (!authService.can("nurses.edit")) {
-      showToast("Bạn không có quyền sửa tài khoản y tá.");
-      return;
-    }
-
-    const nurse = nurseService.getNurseById(id);
-    if (!nurse) return;
-
-    const fullName = prompt("Đổi tên y tá:", nurse.fullName);
-    if (!fullName) return;
-
-    const status = prompt("Trạng thái (active/inactive):", nurse.status);
-    if (!status || !["active", "inactive"].includes(status.toLowerCase())) {
-      showToast("Trạng thái không hợp lệ.");
-      return;
-    }
-
-    const result = nurseService.editNurse(id, { fullName, status: status.toLowerCase() });
-    if (result.success) {
-      showToast(result.message);
-      this.renderView();
-    } else {
-      showToast(result.message);
-    }
-  }
-
-  handleChangePassword(id) {
-    const nurse = nurseService.getNurseById(id);
-    if (!nurse) return;
-
-    const newPassword = prompt(`Nhập mật khẩu mới cho ${nurse.username}:`);
-    if (!newPassword) return;
-
-    const result = nurseService.changePassword(id, newPassword);
-    if (result.success) {
-      showToast(result.message);
-      this.renderView();
-    } else {
-      showToast(result.message);
-    }
-  }
-
-  handleDeleteNurse(id) {
+  // Xóa y tá
+  async handleDeleteNurse(id) {
+    // lấy uid của y tá cần xóa
     const nurse = nurseService.getNurseById(id);
     if (!nurse) return;
 
     if (!confirm(`Xóa tài khoản ${nurse.username}?`)) return;
-
-    const result = nurseService.deleteNurse(id);
+    // gọi hàm xóa y tá trong service vs id (uid)
+    const result = await nurseService.deleteNurse(id);
     if (!result.success) {
       showToast(result.message);
       return;
@@ -204,7 +163,9 @@ class NurseController {
         document.getElementById("logout-btn").click();
       }, 500);
     } else {
-      this.renderView();
+      this.renderView().catch((error) => {
+        console.error("[NurseController] renderView error:", error);
+      });
     }
   }
 }
