@@ -47,6 +47,7 @@ class StateService {
 
   // Lấy state hiện tại
   getState() {
+    this.ensurePatientsValid();
     return this.state;
   }
 
@@ -80,6 +81,13 @@ class StateService {
   ensureSystemLogsValid() {
     if (!Array.isArray(this.state.systemLogs)) {
       this.state.systemLogs = [];
+    }
+  }
+
+  // Đảm bảo patients luôn là mảng
+  ensurePatientsValid() {
+    if (!Array.isArray(this.state.patients)) {
+      this.state.patients = [];
     }
   }
 }

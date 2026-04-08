@@ -6,6 +6,8 @@ import stateService from "./stateService.js";
 import authService from "./authService.js";
 import logService from "./logService.js";
 import { DEFAULT_STATE } from "../data/constants.js";
+import firebaseService from "./firebaseService.js";
+import patientService from "./patientService.js";
 
 class DeliveryService {
   // Lấy danh sách ngăn thuốc
@@ -25,6 +27,9 @@ class DeliveryService {
     if (index < 0 || index >= state.deliveryBins.length) {
       return { success: false, message: "Ngăn không hợp lệ." };
     }
+    if (state.deliveryBins[index].status === "đang giao") {
+      return { success: false, message: "Ngăn này đang giao hàng, không thể chỉnh sửa." };
+    }
 
     state.deliveryBins[index][field] = value;
     stateService.saveState();
@@ -42,6 +47,9 @@ class DeliveryService {
     if (index < 0 || index >= state.deliveryBins.length) {
       return { success: false, message: "Ngăn không hợp lệ." };
     }
+    if (state.deliveryBins[index].status === "đang giao") {
+      return { success: false, message: "Ngăn này đang giao hàng, không thể xóa." };
+    }
 
     state.deliveryBins[index] = { patientId: "", note: "" };
     stateService.saveState();
@@ -55,10 +63,11 @@ class DeliveryService {
     return state.deliveryBins.filter((bin) => bin.patientId && bin.note.trim()).length;
   }
 
-  // Bắt đầu nhiệm vụ giao thuốc
-  startMission() {
+  // Bắt đầu nhiệm vụ giao thuốc và ghi đơn hàng lên Firestore (1 document cho nhiều ngăn, khóa toàn bộ ngăn)
+  async startMission() {
     if (!authService.can("delivery.start")) {
       logService.addSystemLog("delivery", "Gửi lệnh giao thuốc", "denied", "Không đủ quyền");
+      alert("Bạn không có quyền gửi lệnh giao thuốc.");
       return { success: false, message: "Không có quyền gửi lệnh giao thuốc." };
     }
 
@@ -66,34 +75,67 @@ class DeliveryService {
     const readyBins = state.deliveryBins.filter((bin) => bin.patientId && bin.note.trim());
 
     if (!readyBins.length) {
+      alert("Vui lòng chọn bệnh nhân và nhập ghi chú trước khi gửi lệnh.");
       return { success: false, message: "Cần chọn bệnh nhân và nhập ghi chú trước khi gửi lệnh." };
     }
 
-    // Tìm robot online
-    const onlineRobot = state.robots.find((robot) => robot.online);
-    const robotName = onlineRobot ? onlineRobot.name : "MedBot";
-    const today = new Date().toISOString().slice(0, 10);
-    const nextLogId = state.deliveryLogs.length ? Math.max(...state.deliveryLogs.map((log) => log.id)) + 1 : 1;
+    // Lấy danh sách bệnh nhân
+    let patientsList = [];
+    try {
+      patientsList = patientService.getPatients();
+      if (!Array.isArray(patientsList)) patientsList = [];
+    } catch (err) {
+      patientsList = [];
+    }
 
-    // Thêm log cho mỗi ngăn sẵn sàng
-    readyBins.forEach((bin, i) => {
-      const patient = state.patients.find((p) => String(p.id) === String(bin.patientId));
-      state.deliveryLogs.push({
-        id: nextLogId + i,
-        patient: patient ? patient.name : "Unknown",
-        nurse: authService.getCurrentUser() ? authService.getCurrentUser().fullName : "Unknown",
-        robot: robotName,
-        status: "success",
-        date: today,
+    // Chuẩn bị dữ liệu cho từng ngăn được sử dụng
+    const binsData = [];
+    readyBins.forEach((bin) => {
+      const binIndex = state.deliveryBins.findIndex(b => b === bin);
+      const slot = binIndex >= 0 ? binIndex + 1 : 1;
+      let patient = null;
+      try {
+        patient = patientsList.find && patientsList.find((p) => String(p.id) === String(bin.patientId));
+      } catch (err) {}
+      binsData.push({
+        slot: slot,
+        patientName: patient ? patient.name : "Unknown",
+        room: patient ? patient.room : "",
+        bed: patient ? patient.bed : "",
+        status: "delivering",
+        note: bin.note
       });
     });
 
-    // Reset delivery bins
-    state.deliveryBins = structuredClone(DEFAULT_STATE.deliveryBins);
+    // Gửi 1 document duy nhất lên Firestore
+    let result;
+    try {
+      result = await firebaseService.addMultiDeliveryCommand(binsData);
+    } catch (err) {
+      alert("Không thể kết nối tới máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau!");
+      logService.addSystemLog("delivery", "Gửi lệnh giao thuốc", "error", "Không thể kết nối Firestore");
+      return { success: false, message: "Không thể kết nối Firestore." };
+    }
 
+    // Đánh dấu trạng thái "delivering" cho TẤT CẢ các ngăn
+    state.deliveryBins.forEach(bin => { bin.status = "delivering"; });
     stateService.saveState();
-    logService.addSystemLog("delivery", "Gửi lệnh giao thuốc", "success", `${readyBins.length} ngăn`);
-    return { success: true, message: "Đã gửi lệnh giao thuốc thành công.", binsCount: readyBins.length };
+    if (result && result.success) {
+      // alert(`Đã gửi lệnh giao thuốc thành công cho ${binsData.length} ngăn!`);
+      logService.addSystemLog("delivery", "Gửi lệnh giao thuốc", "success", `${binsData.length} ngăn`);
+      return { success: true, message: "Đã gửi lệnh giao thuốc thành công.", binsCount: binsData.length };
+    } else {
+      alert("Gửi lệnh giao thuốc thất bại. Vui lòng thử lại!");
+      logService.addSystemLog("delivery", "Gửi lệnh giao thuốc", "error", "Không gửi được lệnh nào");
+      return { success: false, message: "Không gửi được lệnh nào." };
+    }
+  }
+
+  // Lưu lại toàn bộ mảng ngăn thuốc (dùng cho đồng bộ realtime)
+  saveBins(bins) {
+    const state = stateService.getState();
+    state.deliveryBins = bins;
+    stateService.saveState();
   }
 }
 

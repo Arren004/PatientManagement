@@ -195,10 +195,8 @@ export function renderPatientView(container, patients, isModalVisible = false, e
 
           <div class="field-wrap">
             <label for="modal-patient-status">Trạng thái</label>
-            <select id="modal-patient-status" name="status" required>
-              <option value="admitted">Nhập viện</option>
-              <option value="discharged">Xuất viện</option>
-            </select>
+            <div style="padding: 10px 12px; border: 1px solid #d0d7de; border-radius: 6px; background: #f8fafd; color: #222; font-size: 16px;">Nhập viện</div>
+            <input type="hidden" id="modal-patient-status" name="status" value="admitted" />
           </div>
 
           <div class="modal-actions">

@@ -6,14 +6,42 @@ import deliveryService from "../services/deliveryService.js";
 import patientService from "../services/patientService.js";
 import { renderDeliveryView } from "../views/deliveryView.js";
 import { showToast } from "../utils/ui.js";
+import firebaseService from "../services/firebaseService.js";
 
 class DeliveryController {
   constructor() {
     this.viewContainer = document.getElementById("view-delivery");
+    this.unsubscribeDeliveryCommands = null;
   }
 
   init() {
     // Render sẽ được gọi khi switch view
+    // Lắng nghe realtime trạng thái đơn hàng
+    if (this.unsubscribeDeliveryCommands) this.unsubscribeDeliveryCommands();
+    this.unsubscribeDeliveryCommands = firebaseService.listenDeliveryCommandsRealtime((commands) => {
+      // Kiểm tra có đơn hàng nào đang delivering không
+      const hasDelivering = commands.some(cmd => cmd.status === "delivering");
+      window.isDelivering = hasDelivering;
+      this.renderView();
+      // Lấy state hiện tại
+      const state = deliveryService.getDeliveryBins();
+      let updated = false;
+      // Duyệt từng ngăn, nếu có đơn hàng slot tương ứng và status là 'thành công' thì giải phóng ngăn
+      commands.forEach(cmd => {
+        if (cmd.status === "thành công" && cmd.slot) {
+          const slotIdx = Number(cmd.slot) - 1;
+          if (state[slotIdx] && state[slotIdx].status === "đang giao") {
+            state[slotIdx] = { patientId: "", note: "", status: "" };
+            updated = true;
+          }
+        }
+      });
+      if (updated) {
+        // Lưu lại state và render lại UI
+        deliveryService.saveBins(state);
+        this.renderView();
+      }
+    });
   }
 
   renderView() {
@@ -21,7 +49,9 @@ class DeliveryController {
     const patients = patientService.getPatients();
     const readyBinsCount = deliveryService.getReadyBinsCount();
 
-    renderDeliveryView(this.viewContainer, bins, patients, readyBinsCount);
+    // Kiểm tra trạng thái đơn hàng trên Firestore (giả sử lưu vào this.isDelivering)
+    const isDelivering = window.isDelivering || false;
+    renderDeliveryView(this.viewContainer, bins, patients, readyBinsCount, isDelivering);
 
     // Setup event listeners
     this.setupEventListeners();
@@ -36,8 +66,8 @@ class DeliveryController {
     this.viewContainer.querySelectorAll(".delivery-control-patient-search").forEach((input) => {
       const index = Number(input.dataset.index);
       const hiddenInput = this.viewContainer.querySelector(`.delivery-control-patient-id[data-index="${index}"]`);
-      // Hiển thị tên nếu đã chọn
       const currentPatientId = bins[index].patientId;
+      const isBusy = bins[index].status === "đang giao";
       if (currentPatientId) {
         const patient = patients.find(p => String(p.id) === String(currentPatientId));
         if (patient) {
@@ -45,15 +75,13 @@ class DeliveryController {
           hiddenInput.value = currentPatientId;
         }
       }
-
+      if (isBusy) return; // KHÔNG cho thao tác nếu đang giao
       input.addEventListener("click", () => {
         const modal = document.getElementById("patient-select-modal");
         if (!modal) return;
         modal.style.display = "flex";
-        renderPatientModalList("");
-
-        // Xử lý chọn bệnh nhân trong modal
-        function renderPatientModalList(search) {
+        // Sử dụng arrow function để giữ đúng ngữ cảnh this
+        const renderPatientModalList = (search) => {
           const list = modal.querySelector("#patient-modal-list");
           let filtered = patients;
           if (search && search.trim()) {
@@ -85,9 +113,14 @@ class DeliveryController {
               const id = item.getAttribute('data-id');
               const patient = patients.find(p => String(p.id) === String(id));
               if (patient) {
+                const result = deliveryService.updateBin(index, "patientId", patient.id);
+                if (!result.success) {
+                  showToast(result.message);
+                  this.renderView();
+                  return;
+                }
                 input.value = patient.name;
                 hiddenInput.value = patient.id;
-                deliveryService.updateBin(index, "patientId", patient.id);
                 modal.style.display = "none";
                 this.updateReadyState();
               }
@@ -96,7 +129,9 @@ class DeliveryController {
           // Phân trang event
           list.querySelector('#modal-prev-page')?.addEventListener('click',()=>{window.patientModalPage=Math.max(1,page-1);renderPatientModalList(modal.querySelector('#patient-modal-search').value);});
           list.querySelector('#modal-next-page')?.addEventListener('click',()=>{window.patientModalPage=Math.min(totalPages,page+1);renderPatientModalList(modal.querySelector('#patient-modal-search').value);});
-        }
+        };
+
+        renderPatientModalList("");
 
         // Tìm kiếm
         const searchInput = modal.querySelector('#patient-modal-search');
@@ -117,9 +152,15 @@ class DeliveryController {
     this.viewContainer.querySelectorAll(".delivery-control-note").forEach((textarea) => {
       const index = Number(textarea.dataset.index);
       textarea.value = deliveryService.getDeliveryBins()[index].note || "";
-
+      const isBusy = bins[index].status === "đang giao";
+      if (isBusy) return; // KHÔNG cho thao tác nếu đang giao
       textarea.addEventListener("input", (e) => {
-        deliveryService.updateBin(index, "note", e.target.value, false);
+        const result = deliveryService.updateBin(index, "note", e.target.value, false);
+        if (!result.success) {
+          showToast(result.message);
+          this.renderView();
+          return;
+        }
         this.updateReadyState();
       });
     });
@@ -141,10 +182,11 @@ class DeliveryController {
     // Start mission button
     const startBtn = this.viewContainer.querySelector("#start-delivery-btn");
     if (startBtn) {
-      startBtn.addEventListener("click", () => {
-        const result = deliveryService.startMission();
+      startBtn.addEventListener("click", async () => {
+        const result = await deliveryService.startMission();
         if (result.success) {
           showToast(result.message);
+          import('../utils/ui.js').then(m => m.showSuccessCheckmark());
           this.renderView();
         } else {
           showToast(result.message);

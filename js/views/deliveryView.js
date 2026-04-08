@@ -4,7 +4,7 @@
 
 import authService from "../services/authService.js";
 
-export function renderDeliveryView(container, deliveryBins, patients, readyBinsCount) {
+export function renderDeliveryView(container, deliveryBins, patients, readyBinsCount, isDelivering) {
   const canEditDelivery = authService.can("delivery.edit");
   const canStartDelivery = authService.can("delivery.start");
 
@@ -27,16 +27,18 @@ export function renderDeliveryView(container, deliveryBins, patients, readyBinsC
     .map((bin, index) => {
       const patient = patients.find((p) => String(p.id) === String(bin.patientId));
       const hasAssigned = Boolean(bin.patientId && bin.note.trim());
-      const statusLabel = hasAssigned ? "Đã gán" : "Trống";
+      // Nếu đang có đơn hàng delivering thì tất cả ngăn đều bị khóa
+      const isBusy = isDelivering || bin.status === "delivering";
+      const statusLabel = isBusy ? "Đang giao hàng..." : (hasAssigned ? "Đã gán" : "Trống");
 
       return `
-      <div class="card delivery-compartment ${hasAssigned ? "assigned" : ""}">
+      <div class="card delivery-compartment${hasAssigned ? " assigned" : ""}${isBusy ? " slot-busy" : ""}">
         <div class="delivery-head">
           <div>
             <h3>Ngăn ${index + 1}</h3>
             <p>${statusLabel}</p>
           </div>
-          ${hasAssigned || bin.note ? `<button class="link-clear clear-bin-btn" data-index="${index}" ${canEditDelivery ? "" : "disabled title='Không có quyền xóa dữ liệu ngăn'"}>Xóa</button>` : ""}
+          ${hasAssigned || bin.note ? `<button class="link-clear clear-bin-btn" data-index="${index}" ${(canEditDelivery && !isBusy) ? "" : "disabled title='Không thể xóa khi đang giao'"}>Xóa</button>` : ""}
         </div>
 
         <div class="field-wrap">
@@ -49,17 +51,17 @@ export function renderDeliveryView(container, deliveryBins, patients, readyBinsC
               placeholder="Nhấn để chọn bệnh nhân..." 
               readonly
               style="cursor:pointer;background:#f3f4f6;"
-              ${canEditDelivery ? "" : "disabled"} />
+              ${(canEditDelivery && !isBusy) ? "" : "disabled"} />
             <input type="hidden" class="delivery-control-patient-id" data-index="${index}" value="${bin.patientId}">
           </div>
         </div>
 
         <div class="field-wrap">
           <label>Hướng dẫn giao thuốc</label>
-          <textarea class="delivery-control-note" data-index="${index}" rows="3" placeholder="Ví dụ: Sau ăn, cần hỗ trợ, uống kèm nước..." ${canEditDelivery ? "" : "disabled"}></textarea>
+          <textarea class="delivery-control-note" data-index="${index}" rows="3" placeholder="Ví dụ: Sau ăn, cần hỗ trợ, uống kèm nước..." ${(canEditDelivery && !isBusy) ? "" : "disabled"}></textarea>
         </div>
-
-        ${patient ? `<div class="delivery-preview"><strong>${patient.name}</strong><span>Room ${patient.room}, Bed ${patient.bed}</span></div>` : ""}
+        ${isBusy ? `<div class='delivery-busy-label'><span class="spinner"></span>Đang giao hàng...</div>` : ""}
+        ${patient ? `<div class="delivery-preview"><strong>${patient.name}</strong><span>Phòng ${patient.room}, Giường ${patient.bed}</span></div>` : ""}
       </div>
     `;
     })

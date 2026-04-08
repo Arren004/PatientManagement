@@ -26,7 +26,21 @@ import {
   writeBatch,
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
 class FirebaseService {
+  
+          // Lắng nghe realtime collection robots
+          listenRobotsRealtime(callback) {
+            const q = collection(db, "robots");
+            return onSnapshot(q, (querySnapshot) => {
+              const data = [];
+              querySnapshot.forEach((doc) => {
+                data.push({ id: doc.id, ...doc.data() });
+              });
+              callback(data);
+            });
+          }
         // Thêm log hệ thống lên Firestore
         async addSystemLogToCloud(log) {
           try {
@@ -252,6 +266,32 @@ class FirebaseService {
     } catch (error) {
       return { success: false, message: error.message };
     }
+  }
+
+  // Thêm lệnh giao thuốc mới lên Firestore (nhiều ngăn trong 1 document)
+  async addMultiDeliveryCommand(binsData) {
+    try {
+      const docRef = await addDoc(collection(db, "deliveryCommands"), {
+        createdAt: serverTimestamp(),
+        status: "delivering",
+        bins: binsData // [{slot, patientName, room, bed, note, status}]
+      });
+      return { success: true, id: docRef.id };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  }
+
+  // Lắng nghe realtime collection deliveryCommands
+  listenDeliveryCommandsRealtime(callback) {
+    const q = collection(db, "deliveryCommands");
+    return onSnapshot(q, (querySnapshot) => {
+      const data = [];
+      querySnapshot.forEach((doc) => {
+        data.push({ id: doc.id, ...doc.data() });
+      });
+      callback(data);
+    });
   }
 
   // Lấy toàn bộ danh sách bệnh nhân từ Firestore
