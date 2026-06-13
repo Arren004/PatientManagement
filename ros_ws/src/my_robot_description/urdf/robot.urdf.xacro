@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<robot name="my_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:property name="PI" value="3.1415926535897931" />
+
+
+<!-- 1. Gốc tọa độ ảo sát mặt đất -->
+<link name="base_footprint" />
+
+<joint name="base_link_joint" type="fixed">
+ <parent link="base_footprint" />
+ <child link="base_link" />
+ <origin xyz="0 0 0.0805" rpy="0 0 0" /> 
+</joint>
+
+<link name="base_link">
+    <visual>
+      <!-- origin ở đây giúp căn chỉnh hình dáng so với tâm hệ tọa độ -->
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <!-- Tấm mica tròn dày 0.005m, bán kính 0.125m -->
+        <cylinder length="0.005" radius="0.125"/>
+      </geometry>
+      <material name="blue">
+        <color rgba="0 0 1 0.7"/> <!-- Màu xanh trong suốt cho giống mica -->
+      </material>
+    </visual>
+  </link>
+
+<!-- 1. Link cho bánh xe bên trái -->
+<link name="left_wheel">
+    <visual>
+      <!-- Xoay hình trụ 90 độ quanh trục X để nó nằm ngang (1.5708 rad = 90 deg) -->
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <cylinder length="0.038" radius="0.0425"/>
+      </geometry>
+      <material name="black">
+        <color rgba="0 0 0 1"/>
+      </material>
+    </visual>
+</link>
+
+<!-- 2. Khớp nối bánh xe với base_link -->
+<joint name="left_wheel_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="left_wheel"/>
+    <!-- Vị trí gắn: x=0 (giữa xe), y=0.154 (bên trái), z=-0.038 (dưới tấm mica) -->
+    <origin xyz="0 0.154 -0.038" rpy="0 0 0"/>
+    <!-- Trục xoay của bánh xe là trục Y -->
+    <axis xyz="0 1 0"/>
+</joint>
+
+
+

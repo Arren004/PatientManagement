@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Hospital - Sơ đồ Thiết kế Hệ thống</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mermaid JS -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-sidebar: #0f172a;
+            --text-main: #1e293b;
+            --text-mute: #64748b;
+            --blue: #3b82f6;
+            --blue-hover: #2563eb;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #090d16;
+            --bg-sidebar: #020617;
+            --text-main: #f1f5f9;
+            --text-mute: #94a3b8;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.25s, border-color 0.25s;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 280px;
+            background-color: var(--bg-sidebar);
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            padding: 24px 16px;
+            z-index: 10;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding: 0 8px;
+        }
+
+        .logo-icon {
+            font-size: 24px;
+            color: var(--blue);
+        }
+
+        .logo-title {
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .menu-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-mute);
+            font-weight: 700;
+            margin-bottom: 12px;
+            padding: 0 8px;
+        }
+
+        .menu-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            color: #ffffff;
+            background-color: rgb(59 130 246 / 0.15);
+        }
+
+        .menu-item.active {
+            background-color: var(--blue);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgb(59 130 246 / 0.3);
+        }
+
+        .menu-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Content area */
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .topbar {
+            height: 70px;
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            box-shadow: var(--shadow);
+        }
+
+        .page-title {
+            font-weight: 800;
+            font-size: 1.35rem;
+            color: var(--text-main);
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-theme {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .btn-theme:hover {
+            background-color: var(--bg-primary);
+            border-color: var(--blue);
+            color: var(--blue);
+        }
+
+        .btn-action {
+            background-color: var(--blue);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 18px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgb(59 130 246 / 0.25);
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: var(--blue-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-action:active {
+            transform: translateY(0);
+        }
+
+        /* Diagram panel */
+        .diagram-container {
+            flex: 1;
+            padding: 32px;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .diagram-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 1200px;
+            min-height: 500px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .diagram-desc {
+            margin-bottom: 24px;
+            color: var(--text-mute);
+            font-size: 1rem;
+            text-align: center;
+            line-height: 1.5;
+            max-width: 800px;
+        }
+
+        .mermaid-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+
+        .loader {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            color: var(--blue);
+        }
+
+        .loader i {
+            font-size: 40px;
+            animation: spin 1s infinite linear;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <div class="logo-area">
+            <i class="fa-solid fa-square-poll-vertical logo-icon"></i>
+            <div class="logo-title">Smart Hospital</div>
+        </div>
+        <div class="menu-title">Sơ đồ thiết kế</div>
+        <ul class="menu-list">
+            <li class="menu-item active" data-index="0" data-title="Cây chức năng hệ thống" data-desc="Sơ đồ mô tả toàn bộ cấu trúc các trang hiển thị, phân quyền người dùng và chức năng nghiệp vụ của trang web.">
+                <i class="fa-solid fa-sitemap"></i> Cây chức năng hệ thống
+            </li>
+            <li class="menu-item" data-index="1" data-title="Sơ đồ tuần tự: Giao thuốc qua Robot" data-desc="Quy trình gửi lệnh giao thuốc từ Phòng trực máy khách -> truyền mạng Wi-Fi MQTT -> Robot nhận lệnh và di chuyển -> mở ngăn kéo -> xác nhận đã lấy -> đóng ngăn kéo và báo cáo kết quả hoàn thành.">
+                <i class="fa-solid fa-truck-ramp-box"></i> Sơ đồ giao thuốc Robot
+            </li>
+            <li class="menu-item" data-index="2" data-title="Sơ đồ tuần tự: Điều hướng màn hình Bệnh nhân" data-desc="Mô tả các bước thao tác, chuyển trang cơ bản của Y tá trên giao diện danh sách bệnh nhân (tải dữ liệu, tìm kiếm live search, mở thêm mới, xem chi tiết).">
+                <i class="fa-solid fa-compass"></i> Điều hướng Bệnh nhân
+            </li>
+            <li class="menu-item" data-index="3" data-title="Sơ đồ tuần tự: Đồng bộ dữ liệu bệnh nhân LAN" data-desc="Quy trình lưu trữ cục bộ Offline-First lập tức tại máy khách và tự động đồng bộ qua mạng LAN nội bộ lên Máy chủ trung tâm và đồng bộ sang máy Y tá khác.">
+                <i class="fa-solid fa-rotate"></i> Đồng bộ bệnh nhân LAN
+            </li>
+            <li class="menu-item" data-index="4" data-title="Sơ đồ tuần tự: Thêm phòng & Gán tọa độ giường" data-desc="Quy trình Y tá thêm phòng mới và điền thông số tọa độ thực tế (x, y, hướng quay) của từng giường qua form để nạp dữ liệu định vị dẫn đường cho Robot.">
+                <i class="fa-solid fa-bed"></i> Thêm phòng & Tọa độ giường
+            </li>
+            <li class="menu-item" data-index="5" data-title="Sơ đồ tuần tự: Cài đặt giới hạn tốc độ Robot" data-desc="Quy trình thiết lập vận tốc di chuyển thẳng và vận tốc xoay tối đa cho Robot từ giao diện web, lưu trữ đồng bộ và truyền sóng điều khiển MQTT.">
+                <i class="fa-solid fa-gauge-high"></i> Cài đặt tốc độ Robot
+            </li>
+            <li class="menu-item" data-index="6" data-title="Sơ đồ giải thuật: Quy trình truyền tin và vận hành toàn hệ thống" data-desc="Mô tả toàn bộ quy trình truyền tin hai chiều từ màn hình Web điều khiển qua mạng LAN, backend FastAPI, truyền thông MQTT, máy tính Raspberry Pi (ROS 2), giao tiếp UART 26 byte với STM32 để điều phối động cơ di chuyển, chốt khóa ngăn kéo Servo, phản hồi vận tốc thực tế (Odometry) và giám sát dung lượng Pin.">
+                <i class="fa-solid fa-network-wired"></i> Quy trình vận hành hệ thống
+            </li>
+            <li class="menu-item" data-index="7" data-title="Sơ đồ giải thuật: Kiến trúc hệ thống tổng quát" data-desc="Mô tả toàn bộ kiến trúc luồng dữ liệu hai chiều của hệ thống: từ màn hình Web, CSDL LAN, backend, truyền sóng không dây MQTT, xử lý LiDAR/Nav2 điều hướng trên Pi, giao tiếp UART 26 byte với STM32 điều phối động cơ di chuyển, cảm biến tốc độ Odometry, giám sát Pin và chốt cơ học Servo.">
+                <i class="fa-solid fa-circle-nodes"></i> Kiến trúc hệ thống tổng quát
+            </li>
+            <li class="menu-item" data-index="8" data-title="Sơ đồ giải thuật: Quy trình phản hồi trạng thái từ Robot lên Web" data-desc="Mô tả quy trình truyền dữ liệu phản hồi một chiều đi ngược từ các cảm biến vật lý (Pin, Odometry), qua xử lý của vi điều khiển STM32, truyền tín hiệu lên máy tính Raspberry Pi, phát sóng MQTT qua mạng Wi-Fi không dây, máy chủ trung tâm ghi nhận và đồng bộ trực tiếp lên màn hình Web của Y tá theo thời gian thực.">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i> Quy trình phản hồi hệ thống
+            </li>
+        </ul>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+        <div class="topbar">
+            <div class="page-title" id="current-title">Cây chức năng hệ thống</div>
+            <div class="topbar-actions">
+                <button class="btn-theme" id="theme-toggle" title="Đổi màu nền">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="btn-action" id="btn-print" onclick="window.print()">
+                    <i class="fa-solid fa-print"></i> In sơ đồ / Lưu PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="diagram-container">
+            <div class="diagram-card">
+                <div class="diagram-desc" id="current-desc">Sơ đồ mô tả toàn bộ cấu trúc các trang hiển thị, phân quyền người dùng và chức năng nghiệp vụ của trang web.</div>
+                
+                <div class="loader" id="diagram-loader">
+                    <i class="fa-solid fa-circle-notch"></i>
+                    <div>Đang vẽ sơ đồ...</div>
+                </div>
+
+                <div class="mermaid-wrapper" id="mermaid-area">
+                    <!-- Sơ đồ sẽ được render tại đây -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data cho các sơ đồ -->
+    <script>
+        const DIAGRAM_TEMPLATES = [
+            // 0. Cây chức năng hệ thống
+            `graph LR
+    User[Người dùng] --> Login[Đăng nhập]
+    
+    %% Phân loại tài khoản đăng nhập
+    Login --> Role1[Y tá / Y tá trưởng]
+    Login --> Role2[Kỹ thuật viên LAN]
+    
+    %% Nhánh Kỹ thuật viên (tài khoản config)
+    Role2 --> ConfigOnly[Trang cấu hình LAN CSDL]
+    ConfigOnly --> LogoutConfig[Đăng xuất]
+    
+    %% Nhánh Y tá chính
+    Role1 --> Menu[Thanh Menu điều hướng]
+    Role1 --> Profile[Trang cá nhân]
+    
+    Profile --> EditPass[Đổi mật khẩu]
+    Profile --> Logout[Đăng xuất]
+    
+    %% Các mục Menu chính trên web của bạn
+    Menu --> M1[Bệnh nhân]
+    Menu --> M2[Phòng bệnh]
+    Menu --> M3[Y tá]
+    Menu --> M4[Robot]
+    Menu --> M5[Giao thuốc]
+    Menu --> M6[Cơ sở dữ liệu<br/>Chỉ Y tá trưởng]
+    
+    %% Chức năng trang Bệnh nhân
+    M1 --> M1_1[Xem danh sách]
+    M1 --> M1_2[Tìm kiếm live & Lọc phòng/trạng thái]
+    M1 --> M1_3[Thêm bệnh nhân mới]
+    M1 --> M1_4[Xem bệnh án chi tiết]
+    M1_4 --> M1_4_1[Lịch sử bệnh lý]
+    M1_4 --> M1_4_2[Lịch sử giao nhận thuốc]
+    M1 --> M1_5[Sửa thông tin / Cho xuất viện]
+    
+    %% Chức năng trang Phòng bệnh
+    M2 --> M2_1[Xem danh sách phòng & giường]
+    M2 --> M2_2[Thêm phòng bệnh mới]
+    M2 --> M2_3[Cấu hình vị trí giường bằng cách nhập tọa độ x, y]
+    
+    %% Chức năng trang Y tá
+    M3 --> M3_1[Xem danh sách y tá trực]
+    M3 --> M3_2[Thêm tài khoản y tá mới]
+    M3 --> M3_3[Đổi thông tin & Mật khẩu y tá]
+    M3 --> M3_4[Xóa tài khoản y tá]
+    
+    %% Chức năng trang Robot
+    M4 --> M4_1[Xem danh sách & trạng thái Robot]
+    M4 --> M4_2[Giám sát Pin, Vận tốc, Telemetry]
+    M4 --> M4_3[Thêm & cấu hình Robot số ngăn, vận tốc]
+    
+    %% Chức năng trang Giao thuốc
+    M5 --> M5_1[Chọn Robot đang hoạt động]
+    M5 --> M5_2[Cấu hình từng ngăn thuốc bệnh nhân, đơn thuốc]
+    M5 --> M5_3[Mở nắp nhanh mở lẻ từng ngăn / mở tất cả]
+    M5 --> M5_4[Ra lệnh Bắt đầu giao thuốc]
+    M5 --> M5_5[Theo dõi trạng thái giao thời gian thực]
+    
+    %% Chức năng trang Cơ sở dữ liệu (Database Explorer)
+    M6 --> M6_1[Thống kê số lượng tài liệu]
+    M6 --> M6_2[Lọc theo khoảng ngày & tìm kiếm]
+    M6 --> M6_3[Xem chi tiết JSON & Sao chép]
+    M6 --> M6_4[Xóa tài liệu lỗi/rác]
+    M6 --> M6_5[Xuất dữ liệu Excel đa trang tính]
+    M6 --> M6_6[Tải file sao lưu CSDL JSON]
+    M6 --> M6_7[Đổi IP kết nối CouchDB]
+    M6 --> M6_8[Dọn dẹp CSDL Compaction]`,
+
+            // 1. Sơ đồ giao thuốc robot
+            `sequenceDiagram
+    autonumber
+    actor NurseStation as Y tá (Phòng trực)
+    participant UI as Màn hình giao diện
+    participant AppSystem as Bộ xử lý Máy tính
+    participant LocalDB as Cơ sở dữ liệu máy khách
+    participant ServerDB as Cơ sở dữ liệu Máy chủ
+    participant Backend as Bộ xử lý Máy chủ (Backend)
+    participant WiFi as Mạng truyền dẫn (Wi-Fi)
+    participant Robot as Thiết bị Robot
+    participant RobotScreen as Màn hình trên Robot
+    participant Drawer as Khóa ngăn kéo vật lý
+    actor Bedside as Người nhận (Tại giường bệnh)
+
+    %% --- GIAI ĐOẠN 1: KHỞI TẠO VÀ PHÁT LỆNH ---
+    NurseStation->>UI: Chọn các ngăn thuốc, bệnh nhân và nhấn "Bắt đầu giao thuốc"
+    UI->>AppSystem: Gửi danh sách các ngăn thuốc đã cấu hình
+    AppSystem->>LocalDB: Ghi nhận trạng thái "Đang giao" cho các ngăn và tạo Lệnh giao thuốc mới
+    LocalDB-->>AppSystem: Xác nhận đã lưu lệnh thành công
+    AppSystem-->>UI: Khóa màn hình (bị xám) và báo thành công
+    UI-->>NurseStation: Nhìn thấy thông báo giao thuốc bắt đầu
+
+    %% --- GIAI ĐOẠN 2: TRUYỀN LỆNH VÀ THỰC HIỆN GIAO THUỐC TẠI GIƯỜNG BỆNH ---
+    LocalDB->>ServerDB: Tự động đồng bộ Lệnh giao thuốc mới lên Máy chủ (mạng LAN)
+    ServerDB->>Backend: Thông báo có lệnh giao thuốc mới trong CSDL
+    
+    alt Nếu còn ngăn thuốc chưa giao (Kiểm tra danh sách đơn)
+        Backend->>WiFi: Tách thông tin ngăn thuốc và phát lệnh điều khiển
+        WiFi->>Robot: Truyền dữ liệu di chuyển và thông tin ngăn tương ứng
+        
+        %% Robot xử lý
+        Robot->>Robot: Kiểm tra ngăn kéo nhận được và lấy tọa độ giường tương ứng
+        Robot->>Robot: Tự động di chuyển đến giường bệnh nhân của ngăn tương ứng
+        Note over Robot: Robot dừng chính xác trước giường bệnh nhân
+        Robot->>RobotScreen: Hiển thị tên bệnh nhân và số giường đối chiếu
+        Robot->>Drawer: Truyền lệnh mở chốt ngăn kéo tương ứng
+        Drawer->>Drawer: Nắp ngăn chứa thuốc tự động bật mở ra
+        Drawer-->>Bedside: Nhìn thấy nắp ngăn kéo đã mở
+        Bedside->>Robot: Nhận thuốc và nhấn nút "Xác nhận đã lấy thuốc" trên thân Robot
+        Robot->>Drawer: Ra lệnh đóng và khóa chặt ngăn kéo thuốc
+        Robot->>RobotScreen: Hiển thị thông báo "Cảm ơn! Giao thuốc hoàn tất"
+        
+        %% Báo cáo thời gian thực cho ngăn đó
+        Robot-->>WiFi: Gửi báo cáo "Đã giao xong ngăn thuốc X"
+        WiFi-->>Backend: Truyền tín hiệu báo cáo trạng thái ngăn X
+        Backend-->>ServerDB: Cập nhật trạng thái ngăn X thành "Đã giao" trong database
+        ServerDB-->>LocalDB: Tự động đồng bộ trạng thái mới về máy tính phòng trực (LAN)
+        LocalDB-->>AppSystem: Thông báo dữ liệu đã cập nhật
+        AppSystem-->>UI: Cập nhật màu xanh lá cho ngăn X trên giao diện
+        UI-->>NurseStation: Nhìn thấy trạng thái ngăn X cập nhật hoàn tất trên màn hình
+        
+        Note over Robot, Backend: Quay lại bước kiểm tra (Alt) cho ngăn thuốc tiếp theo
+    else Khi đã giao hết tất cả các ngăn thuốc (Lệnh giao hoàn tất)
+        Robot-->>WiFi: Gửi báo cáo giao xong ngăn cuối cùng (slot X, status: "delivered")
+        WiFi-->>Backend: Truyền dữ liệu báo cáo về máy chủ
+        Note over Backend: Xác nhận tất cả các ngăn của ca giao này đều đã giao xong
+        Backend->>ServerDB: Cập nhật trạng thái toàn bộ Lệnh giao thuốc thành "delivered" (Đã hoàn thành)
+        ServerDB-->>LocalDB: Tự động đồng bộ tài liệu Lệnh giao thuốc mới về máy tính phòng trực (LAN)
+        LocalDB-->>AppSystem: Phát tín hiệu thay đổi dữ liệu thời gian thực
+        Note over AppSystem: Phát hiện không còn lệnh "delivering" nào của Robot này
+        AppSystem->>AppSystem: Tự động giải phóng robot và xóa thông tin các ngăn thuốc
+        AppSystem-->>UI: Cập nhật render lại màn hình (giao diện không còn bị xám, các ngăn hiển thị trống)
+        UI-->>NurseStation: Giao diện web được mở khóa hoàn toàn, sẵn sàng cho ca giao tiếp theo
+    end`,
+
+            // 2. Sơ đồ tuần tự điều hướng bệnh nhân
+            `sequenceDiagram
+    autonumber
+    actor Nurse as Y tá (Người dùng)
+    participant UI as Màn hình máy tính Y tá
+    participant AppSystem as Bộ xử lý của phần mềm (Javascript)
+    participant LocalDB as Cơ sở dữ liệu máy khách
+
+    %% --- 1. TẢI DANH SÁCH BAN ĐẦU ---
+    Nurse->>UI: Mở tab "Bệnh nhân" trên thanh điều hướng
+    UI->>AppSystem: Yêu cầu hiển thị danh sách bệnh nhân
+    AppSystem->>LocalDB: Truy vấn dữ liệu toàn bộ bệnh nhân đã lưu
+    LocalDB-->>AppSystem: Trả về danh sách bệnh nhân
+    AppSystem->>UI: Hiển thị danh sách bệnh nhân lên bảng biểu chính
+
+    %% --- 2. TÌM KIẾM LIVE SEARCH ---
+    Nurse->>UI: Nhập từ khóa tìm kiếm (Ví dụ: Tên hoặc Số phòng)
+    UI->>AppSystem: Yêu cầu lọc danh sách theo từ khóa vừa nhập
+    AppSystem->>UI: Cập nhật nhanh kết quả tìm kiếm lên màn hình (Không cần tải lại trang)
+
+    %% --- 3. ĐIỀU HƯỚNG TỚI THÊM MỚI ---
+    Nurse->>UI: Nhấn nút "Thêm bệnh nhân"
+    UI->>UI: Hiển thị bảng biểu (Modal) để nhập thông tin bệnh nhân mới
+
+    %% --- 4. XEM CHI TIẾT BỆNH ÁN ---
+    Nurse->>UI: Nhấn chọn một dòng bệnh nhân bất kỳ trong bảng
+    UI->>UI: Chuyển sang màn hình xem thông tin bệnh án chi tiết (Đơn thuốc & Lịch sử)
+
+    %% --- 5. ĐĂNG XUẤT ---
+    Nurse->>UI: Nhấn nút "Đăng xuất"
+    UI->>UI: Quay trở lại màn hình Đăng nhập hệ thống`,
+
+            // 3. Sơ đồ đồng bộ bệnh nhân
+            `sequenceDiagram
+    autonumber
+    actor Nurse as Y tá A (Sử dụng máy tính 1)
+    participant UI as Màn hình máy tính Y tá A
+    participant AppSystem as Bộ xử lý của phần mềm (Javascript)
+    participant LocalDB as Cơ sở dữ liệu máy khách A
+    participant ServerDB as Cơ sở dữ liệu Máy chủ
+    participant OtherLocalDB as Cơ sở dữ liệu máy khách B
+    participant OtherUI as Màn hình máy tính Y tá B
+
+    %% --- BƯỚC 1: GHI DỮ LIỆU CỤC BỘ ---
+    Nurse->>UI: Nhập thông tin (Thêm/Sửa/Cho xuất viện) và nhấn "Lưu"
+    UI->>AppSystem: Truyền dữ liệu đã nhập xuống bộ xử lý
+    AppSystem->>AppSystem: Kiểm tra tính hợp lệ của dữ liệu (không để trống, đúng định dạng)
+    AppSystem->>LocalDB: Ghi dữ liệu bệnh nhân mới cập nhật vào Cơ sở dữ liệu máy khách A
+    LocalDB-->>AppSystem: Báo cáo đã ghi thành công (Tốc độ tức thì)
+    AppSystem-->>UI: Cập nhật dữ liệu mới lên màn hình và báo lưu thành công
+    UI-->>Nurse: Hiển thị thông báo thành công trên màn hình máy tính
+
+    %% --- BƯỚC 2: TỰ ĐỘNG ĐỒNG BỘ QUA MẠNG LAN (TIẾN TRÌNH CHẠY NGẦM) ---
+    LocalDB->>ServerDB: Tự động truyền dữ liệu mới sang Cơ sở dữ liệu Máy chủ
+    ServerDB->>ServerDB: Lưu trữ và đồng nhất dữ liệu gốc trên Máy chủ
+
+    %% --- BƯỚC 3: ĐỒNG BỘ REAL-TIME XUỐNG CÁC MÁY TRẠM KHÁC ---
+    ServerDB->>OtherLocalDB: Máy chủ tự động truyền dữ liệu mới sang Cơ sở dữ liệu máy khách B
+    OtherLocalDB->>OtherUI: Kích hoạt cập nhật hiển thị tự động trên màn hình
+    OtherUI-->>OtherUI: Màn hình Y tá B tự động hiện dữ liệu mới (Không cần tải lại trang)`,
+
+            // 4. Thêm phòng & tọa độ giường
+            `sequenceDiagram
+    autonumber
+    actor Nurse as Y tá (Người dùng)
+    participant UI as Màn hình quản lý Phòng bệnh
+    participant AppSystem as Bộ xử lý của phần mềm (Javascript)
+    participant LocalDB as Cơ sở dữ liệu máy khách
+    participant ServerDB as Cơ sở dữ liệu Máy chủ
+
+    %% --- GIAI ĐOẠN 1: NHẬP THÔNG TIN PHÒNG & GIƯỜNG ---
+    Nurse->>UI: Nhấn nút "Thêm phòng mới"
+    UI->>UI: Hiển thị bảng biểu (Modal) nhập Số phòng và Số lượng giường
+    Nurse->>UI: Nhập số phòng, số giường và nhấn nút xác nhận
+    UI->>UI: Tự động hiển thị thêm các ô nhập tọa độ (x, y, hướng quay) tương ứng cho từng giường
+    Nurse->>UI: Nhập tọa độ di chuyển vật lý thực tế của các giường và nhấn "Thêm phòng"
+
+    %% --- GIAI ĐOẠN 2: LƯU TRỮ VÀ KIỂM TRA TẠI CHỖ ---
+    UI->>AppSystem: Truyền thông tin phòng và danh sách giường kèm tọa độ
+    AppSystem->>AppSystem: Kiểm tra xem số phòng này đã tồn tại hay chưa
+    AppSystem->>LocalDB: Ghi thông tin phòng bệnh và các giường vào Cơ sở dữ liệu máy khách
+    LocalDB-->>AppSystem: Xác nhận lưu trữ thành công
+    AppSystem-->>UI: Cập nhật danh sách hiển thị phòng bệnh mới và đóng bảng biểu
+    UI-->>Nurse: Hiển thị thông báo "Thêm phòng bệnh thành công"
+
+    %% --- GIAI ĐOẠN 3: ĐỒNG BỘ ĐỂ ROBOT TRUY XUẤT (TIẾN TRÌNH CHẠY NGẦM) ---
+    LocalDB->>ServerDB: Tự động truyền dữ liệu phòng và giường mới lên Cơ sở dữ liệu Máy chủ
+    ServerDB->>ServerDB: Lưu trữ và đồng nhất dữ liệu để Robot sẵn sàng truy xuất đi giao thuốc`,
+
+            // 5. Cài đặt tốc độ robot
+            `sequenceDiagram
+    autonumber
+    actor Nurse as Y tá (Người dùng)
+    participant UI as Màn hình quản lý Thiết bị Robot
+    participant AppSystem as Bộ xử lý của phần mềm (Javascript)
+    participant LocalDB as Cơ sở dữ liệu máy khách
+    participant ServerDB as Cơ sở dữ liệu Máy chủ
+    participant WiFi as Mạng kết nối không dây (Wi-Fi)
+    participant Robot as Bộ điều khiển trên thiết bị Robot
+
+    %% --- GIAI ĐOẠN 1: ĐIỀU CHỈNH TỐC ĐỘ TRÊN GIAO DIỆN ---
+    Nurse->>UI: Chọn Robot đang trực tuyến và click "Cài đặt tốc độ"
+    UI->>UI: Hiển thị bảng điều chỉnh tốc độ (Thanh trượt v và W)
+    Nurse->>UI: Kéo thanh trượt để chỉnh tốc độ thẳng v (m/s) và tốc độ quay W (rad/s)
+    UI->>UI: Cập nhật hình ảnh thanh biểu thị tốc độ trực quan theo thời gian thực
+    Nurse->>UI: Nhấn nút "Xác nhận" để lưu cài đặt
+
+    %% --- GIAI ĐOẠN 2: LƯU TRỮ VÀ HIỂN THỊ TẠI CHỖ ---
+    UI->>AppSystem: Gửi giá trị tốc độ mới cấu hình
+    AppSystem->>LocalDB: Ghi dữ liệu giới hạn tốc độ (v, W) mới của Robot vào Cơ sở dữ liệu máy khách
+    LocalDB-->>AppSystem: Xác nhận lưu trữ thành công
+    AppSystem-->>UI: Cập nhật hiển thị tốc độ mới trên trang web và đóng bảng biểu
+    UI-->>Nurse: Hiển thị thông báo "Lưu thiết lập tốc độ thành công"
+
+    %% --- GIAI ĐOẠN 3: ĐỒNG BỘ VÀ PHÁT LỆNH ĐẾN ROBOT (TIẾN TRÌNH CHẠY NGẦM) ---
+    LocalDB->>ServerDB: Tự động truyền dữ liệu tốc độ mới lên Cơ sở dữ liệu Máy chủ
+    ServerDB->>ServerDB: Lưu trữ và đồng nhất dữ liệu gốc trên Máy chủ
+    ServerDB->>WiFi: Phát lệnh cập nhật tốc độ qua Wi-Fi (MQTT Command)
+    WiFi->>Robot: Truyền gói tin cài đặt giới hạn tốc độ di chuyển vật lý mới cho Robot`,
+
+            // 6. Truyền tin Web đến STM32
+            `graph TD
+    %% 1. Khai báo các khối của sơ đồ giải thuật (Quyết định nhị phân chuẩn)
+    node_start([Bắt đầu])
+    node_order[Nhân viên y tế ra lệnh trên Web]
+    node_save_local[Lưu trữ lên cơ sở dữ liệu]
+    node_sync_server[Đồng bộ dữ liệu lên cơ sở dữ liệu máy chủ]
+    node_mqtt[Bộ truyền tin MQTT]
+    node_pi[Máy tính Raspberry Pi nhận lệnh]
+    node_stm[Mạch vi điều khiển STM32 nhận lệnh]
+    
+    %% Các Decision nhị phân (Đúng/Sai) để tránh lỗi 3 ngõ ra
+    node_check_move{Là lệnh di chuyển?}
+    node_check_lock{Là lệnh mở khóa?}
+    
+    %% Cơ cấu chấp hành thực thi
+    node_move[Điều khiển động cơ di chuyển]
+    node_lock[Kích hoạt Servo mở khóa nắp]
+    node_speed[Cài đặt giới hạn tốc độ]
+    node_end([Kết thúc])
+
+    %% 2. Vẽ các luồng liên kết từ trên xuống dưới
+    node_start --> node_order
+    node_order -->|Lưu trữ offline| node_save_local
+    node_save_local -->|Đồng bộ dữ liệu qua mạng LAN| node_sync_server
+    node_sync_server --> node_mqtt
+    node_mqtt -.->|Truyền tin qua sóng Wi-Fi| node_pi
+    node_pi -->|Truyền lệnh điều khiển| node_stm
+    node_stm --> node_check_move
+    
+    %% Rẽ nhánh Quyết định 1: Kiểm tra lệnh di chuyển
+    node_check_move -->|Đúng| node_move
+    node_check_move -->|Sai| node_check_lock
+    
+    %% Rẽ nhánh Quyết định 2: Kiểm tra lệnh mở khóa
+    node_check_lock -->|Đúng| node_lock
+    node_check_lock -->|Sai| node_speed
+    
+    %% Kết thúc luồng về nút cuối
+    node_move --> node_end
+    node_lock --> node_end
+    node_speed --> node_end
+
+    %% 3. Trang trí màu sắc trực quan premium
+    style node_start fill:#e2e8f0,stroke:#64748b,stroke-width:2px;
+    style node_end fill:#e2e8f0,stroke:#64748b,stroke-width:2px;
+    
+    style node_order fill:#bae6fd,stroke:#0284c7,stroke-width:2px;
+    style node_save_local fill:#bae6fd,stroke:#0284c7,stroke-width:2px;
+    style node_sync_server fill:#fed7aa,stroke:#ea580c,stroke-width:2px;
+    style node_mqtt fill:#fed7aa,stroke:#ea580c,stroke-width:2px;
+    
+    style node_pi fill:#bbf7d0,stroke:#16a34a,stroke-width:2px;
+    style node_stm fill:#ddd6fe,stroke:#7c3aed,stroke-width:2px;
+    style node_check_move fill:#fef08a,stroke:#ca8a04,stroke-width:2px;
+    style node_check_lock fill:#fef08a,stroke:#ca8a04,stroke-width:2px;
+    
+    style node_move fill:#fecdd3,stroke:#e11d48,stroke-width:2px;
+    style node_lock fill:#fecdd3,stroke:#e11d48,stroke-width:2px;
+    style node_speed fill:#fecdd3,stroke:#e11d48,stroke-width:2px;`,
+ 
+            // 7. Kiến trúc hệ thống tổng quát
+            `graph TD
+    %% 1. Phân vùng Trạm Y tá
+    subgraph Station["1. TRẠM Y TÁ (ỨNG DỤNG WEB)"]
+        node_web_screen[Màn hình giao diện Web]
+        node_local_db[(Cơ sở dữ liệu máy khách)]
+        node_web_screen -->|Y tá gửi lệnh & xem trạng thái| node_local_db
+    end
+
+    %% 2. Phân vùng Máy chủ LAN
+    subgraph CentralServer["2. MÁY CHỦ TRUNG TÂM & MẠNG LAN"]
+        node_server_db[(Cơ sở dữ liệu Máy chủ)]
+        node_backend_api[Ứng dụng Backend FastAPI]
+        node_mqtt_broker[Bộ truyền tin MQTT Broker]
+        
+        node_local_db <-->|Đồng bộ LAN hai chiều| node_server_db
+        node_server_db <-->|Lắng nghe và cập nhật| node_backend_api
+        node_backend_api <-->|Giao tiếp lệnh & dữ liệu| node_mqtt_broker
+    end
+
+    %% 3. Phân vùng Raspberry Pi trên Robot
+    subgraph RobotPi["3. MÁY TÍNH NHÚNG (RASPBERRY PI - ROS 2)"]
+        node_robot_pi_mqtt[Bộ nhận/phát MQTT]
+        node_nav2[Bộ điều hướng Nav2 & Lập bản đồ]
+        node_lidar[Cảm biến LiDAR]
+        node_serial_bridge[Bộ cầu nối Serial UART]
+        node_robot_screen[Màn hình hiển thị trên Robot]
+
+        node_mqtt_broker <.->|Sóng Wi-Fi| node_robot_pi_mqtt
+        node_robot_pi_mqtt <-->|Lệnh di chuyển & Tọa độ| node_nav2
+        node_lidar -->|Dữ liệu quét môi trường| node_nav2
+        node_robot_pi_mqtt -->|Hiển thị thông tin| node_robot_screen
+        node_robot_pi_mqtt <-->|Dữ liệu Telemetry & Lệnh cơ học| node_serial_bridge
+    end
+
+    %% 4. Phân vùng STM32 & Phần cứng Robot
+    subgraph RobotHardware["4. VI ĐIỀU KHIỂN & PHẦN CỨNG (STM32)"]
+        node_robot_stm[Vi điều khiển chính STM32]
+        node_motors[Động cơ & Bánh xe]
+        node_servos[Chốt khóa ngăn kéo Servo]
+        node_battery[Cảm biến giám sát Pin]
+        node_odom[Cảm biến đo tốc độ Odometry]
+
+        node_serial_bridge <-->|Truyền nhận UART 26 byte| node_robot_stm
+        node_robot_stm -->|Điều khiển Motor Driver| node_motors
+        node_robot_stm -->|Kích hoạt Servo cơ học| node_servos
+        node_battery -->|Gửi dữ liệu Pin| node_robot_stm
+        node_odom -->|Gửi dữ liệu vận tốc thực tế| node_robot_stm
+    end
+
+    %% Style cho các Subgraph
+    style Station fill:#f0f9ff,stroke:#0284c7,stroke-width:2px;
+    style CentralServer fill:#fff7ed,stroke:#ea580c,stroke-width:2px;
+    style RobotPi fill:#f0fdf4,stroke:#16a34a,stroke-width:2px;
+    style RobotHardware fill:#faf5ff,stroke:#7c3aed,stroke-width:2px;
+
+    %% Style cho các nút
+    style node_web_screen fill:#bae6fd,stroke:#0284c7;
+    style node_backend_api fill:#fed7aa,stroke:#ea580c;
+    style node_robot_pi_mqtt fill:#bbf7d0,stroke:#16a34a;
+    style node_robot_stm fill:#ddd6fe,stroke:#7c3aed;
+    style node_servos fill:#fecdd3,stroke:#e11d48;
+    style node_motors fill:#fecdd3,stroke:#e11d48;
+    style node_battery fill:#fef08a,stroke:#ca8a04;
+    style node_odom fill:#fef08a,stroke:#ca8a04;
+    style node_lidar fill:#fef08a,stroke:#ca8a04;`,
+
+             // 8. Quy trình phản hồi Robot lên Web
+             `graph TD
+     %% 1. Khai báo các khối của sơ đồ giải thuật (Chiều phản hồi từ dưới lên)
+     node_start([Bắt đầu])
+     node_sensors[/1. Đọc dữ liệu Pin & Tốc độ từ cảm biến/]
+     node_stm[2. STM32 đóng gói & truyền qua cổng UART]
+     node_pi[3. Raspberry Pi nhận UART & gửi MQTT qua Wi-Fi]
+     node_mqtt[/4. MQTT Broker trung chuyển dữ liệu/]
+     node_server[5. Máy chủ nhận dữ liệu & cập nhật CSDL]
+     node_db[(6. Cơ sở dữ liệu đồng bộ LAN về máy khách)]
+     node_web[7. Màn hình Web hiển thị thông số thời gian thực]
+     node_end([Kết thúc])
+
+     %% 2. Vẽ các luồng liên kết đi từ dưới lên trên
+     node_start --> node_sensors
+     node_sensors --> node_stm
+     node_stm -->|UART 26-byte| node_pi
+     node_pi -.->|Sóng Wi-Fi| node_mqtt
+     node_mqtt --> node_server
+     node_server --> node_db
+     node_db --> node_web
+     node_web --> node_end
+
+     %% 3. Trang trí màu sắc trực quan premium
+     style node_start fill:#e2e8f0,stroke:#64748b,stroke-width:2px;
+     style node_end fill:#e2e8f0,stroke:#64748b,stroke-width:2px;
+     
+     style node_sensors fill:#ddd6fe,stroke:#7c3aed,stroke-width:2px;
+     style node_stm fill:#ddd6fe,stroke:#7c3aed,stroke-width:2px;
+     style node_pi fill:#bbf7d0,stroke:#16a34a,stroke-width:2px;
+     style node_mqtt fill:#fed7aa,stroke:#ea580c,stroke-width:2px;
+     style node_server fill:#fed7aa,stroke:#ea580c,stroke-width:2px;
+     style node_db fill:#bae6fd,stroke:#0284c7,stroke-width:2px;
+     style node_web fill:#bae6fd,stroke:#0284c7,stroke-width:2px;`
+         ];
+
+        // Khởi tạo Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: { useMaxWidth: true, htmlLabels: true },
+            sequence: { useMaxWidth: true, boxMargin: 10, messageMargin: 35 }
+        });
+
+        const themeToggleBtn = document.getElementById("theme-toggle");
+        const diagramLoader = document.getElementById("diagram-loader");
+        const mermaidArea = document.getElementById("mermaid-area");
+        const currentTitleEl = document.getElementById("current-title");
+        const currentDescEl = document.getElementById("current-desc");
+        
+        let currentActiveIndex = 0;
+
+        // Xử lý đổi theme
+        themeToggleBtn.onclick = () => {
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const nextTheme = currentTheme === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", nextTheme);
+            themeToggleBtn.innerHTML = nextTheme === "dark" ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+            
+            // Vẽ lại diagram hiện tại với theme tương ứng
+            const activeMermaidTheme = nextTheme === "dark" ? "dark" : "default";
+            mermaid.initialize({ theme: activeMermaidTheme });
+            renderDiagram(currentActiveIndex);
+        };
+
+        // Hàm render sơ đồ
+        async function renderDiagram(index) {
+            diagramLoader.style.display = "flex";
+            mermaidArea.innerHTML = "";
+            
+            const template = DIAGRAM_TEMPLATES[index];
+            const currentTheme = document.documentElement.getAttribute("data-theme");
+            const activeMermaidTheme = currentTheme === "dark" ? "dark" : "default";
+
+            try {
+                // Tạo thẻ tạm để render
+                const tempDiv = document.createElement("div");
+                tempDiv.className = "mermaid";
+                tempDiv.id = "temp-mermaid-svg";
+                tempDiv.textContent = template;
+                
+                mermaidArea.appendChild(tempDiv);
+                
+                // Trực tiếp render bằng thư viện
+                await mermaid.run({
+                    nodes: [tempDiv],
+                    suppressErrors: false
+                });
+                
+                diagramLoader.style.display = "none";
+            } catch (err) {
+                console.error("Lỗi render sơ đồ:", err);
+                diagramLoader.style.display = "none";
+                mermaidArea.innerHTML = `<div style="color:#ef4444;font-weight:700;padding:20px;text-align:center;">Lỗi vẽ sơ đồ! Vui lòng thử lại.</div>`;
+            }
+        }
+
+        // Đăng ký menu items click
+        document.querySelectorAll(".menu-item").forEach(item => {
+            item.onclick = async () => {
+                document.querySelectorAll(".menu-item").forEach(i => i.classList.remove("active"));
+                item.classList.add("active");
+                
+                const index = parseInt(item.dataset.index);
+                currentActiveIndex = index;
+
+                // Cập nhật tiêu đề & mô tả
+                currentTitleEl.textContent = item.dataset.title;
+                currentDescEl.textContent = item.dataset.desc;
+                
+                // Vẽ sơ đồ
+                await renderDiagram(index);
+            };
+        });
+
+        // Tải sơ đồ đầu tiên khi mở trang
+        window.addEventListener("DOMContentLoaded", () => {
+            renderDiagram(0);
+        });
+    </script>
+</body>
+</html>

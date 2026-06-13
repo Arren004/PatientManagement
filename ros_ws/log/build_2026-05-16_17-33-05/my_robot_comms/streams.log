@@ -1,0 +1,28 @@
+[6.039s] Invoking command in '/home/huy/ros_ws/build/my_robot_comms': PYTHONPATH=/home/huy/ros_ws/build/my_robot_comms/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/huy/ros_ws/build/my_robot_comms/build --no-deps symlink_data
+[8.647s] running develop
+[10.668s] running egg_info
+[10.671s] creating my_robot_comms.egg-info
+[10.672s] writing my_robot_comms.egg-info/PKG-INFO
+[10.673s] writing dependency_links to my_robot_comms.egg-info/dependency_links.txt
+[10.686s] writing entry points to my_robot_comms.egg-info/entry_points.txt
+[10.687s] writing requirements to my_robot_comms.egg-info/requires.txt
+[10.687s] writing top-level names to my_robot_comms.egg-info/top_level.txt
+[10.688s] writing manifest file 'my_robot_comms.egg-info/SOURCES.txt'
+[10.695s] reading manifest file 'my_robot_comms.egg-info/SOURCES.txt'
+[10.696s] writing manifest file 'my_robot_comms.egg-info/SOURCES.txt'
+[10.706s] running build_ext
+[10.707s] Creating /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my-robot-comms.egg-link (link to .)
+[10.716s] Installing handle_data_web script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms
+[10.718s] Installing serial_bridge script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms
+[10.720s] Installing web_receiver script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms
+[10.726s] 
+[10.727s] Installed /home/huy/ros_ws/build/my_robot_comms
+[10.734s] running symlink_data
+[10.735s] creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index
+[10.737s] creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index
+[10.739s] creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index/packages
+[10.741s] symbolically linking /home/huy/ros_ws/build/my_robot_comms/resource/my_robot_comms -> /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index/packages
+[10.746s] symbolically linking /home/huy/ros_ws/build/my_robot_comms/package.xml -> /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms
+[10.748s] creating /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms/launch
+[10.750s] symbolically linking /home/huy/ros_ws/build/my_robot_comms/launch/receiver.launch.py -> /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms/launch
+[10.966s] Invoked command in '/home/huy/ros_ws/build/my_robot_comms' returned '0': PYTHONPATH=/home/huy/ros_ws/build/my_robot_comms/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/huy/ros_ws/build/my_robot_comms/build --no-deps symlink_data
