@@ -1,0 +1,47 @@
+[3.263s] Invoking command in '/home/huy/ros_ws/src/my_robot_comms': PYTHONPATH=/home/huy/ros_ws/build/my_robot_comms/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot_comms build --build-base /home/huy/ros_ws/build/my_robot_comms/build install --record /home/huy/ros_ws/build/my_robot_comms/install.log --single-version-externally-managed install_data
+[5.591s] running egg_info
+[5.595s] creating ../../build/my_robot_comms/my_robot_comms.egg-info
+[5.597s] writing ../../build/my_robot_comms/my_robot_comms.egg-info/PKG-INFO
+[5.600s] writing dependency_links to ../../build/my_robot_comms/my_robot_comms.egg-info/dependency_links.txt
+[5.602s] writing entry points to ../../build/my_robot_comms/my_robot_comms.egg-info/entry_points.txt
+[5.605s] writing requirements to ../../build/my_robot_comms/my_robot_comms.egg-info/requires.txt
+[5.607s] writing top-level names to ../../build/my_robot_comms/my_robot_comms.egg-info/top_level.txt
+[5.610s] writing manifest file '../../build/my_robot_comms/my_robot_comms.egg-info/SOURCES.txt'
+[5.640s] reading manifest file '../../build/my_robot_comms/my_robot_comms.egg-info/SOURCES.txt'
+[5.649s] writing manifest file '../../build/my_robot_comms/my_robot_comms.egg-info/SOURCES.txt'
+[5.658s] running build
+[5.668s] running build_py
+[5.671s] creating /home/huy/ros_ws/build/my_robot_comms/build
+[5.672s] creating /home/huy/ros_ws/build/my_robot_comms/build/lib
+[5.673s] creating /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms
+[5.680s] copying my_robot_comms/serial_bridge_node.py -> /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms
+[5.681s] copying my_robot_comms/__init__.py -> /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms
+[5.682s] copying my_robot_comms/handle_data_web.py -> /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms
+[5.689s] copying my_robot_comms/web_receiver.py -> /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms
+[5.689s] running install
+[5.690s] running install_lib
+[5.696s] creating /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms
+[5.699s] copying /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms/serial_bridge_node.py -> /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms
+[5.703s] copying /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms/__init__.py -> /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms
+[5.707s] copying /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms/handle_data_web.py -> /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms
+[5.710s] copying /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms/web_receiver.py -> /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms
+[5.716s] byte-compiling /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms/serial_bridge_node.py to serial_bridge_node.cpython-310.pyc
+[5.730s] byte-compiling /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms/__init__.py to __init__.cpython-310.pyc
+[5.736s] byte-compiling /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms/handle_data_web.py to handle_data_web.cpython-310.pyc
+[5.747s] byte-compiling /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms/web_receiver.py to web_receiver.cpython-310.pyc
+[5.754s] running install_data
+[5.758s] creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index
+[5.766s] creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index
+[5.768s] creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index/packages
+[5.770s] copying resource/my_robot_comms -> /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index/packages
+[5.773s] copying package.xml -> /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms
+[5.779s] creating /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms/launch
+[5.781s] copying launch/receiver.launch.py -> /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms/launch
+[5.783s] running install_egg_info
+[5.794s] Copying ../../build/my_robot_comms/my_robot_comms.egg-info to /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms-0.0.0-py3.10.egg-info
+[5.808s] running install_scripts
+[5.941s] Installing handle_data_web script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms
+[5.944s] Installing serial_bridge script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms
+[5.946s] Installing web_receiver script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms
+[5.949s] writing list of installed files to '/home/huy/ros_ws/build/my_robot_comms/install.log'
+[6.183s] Invoked command in '/home/huy/ros_ws/src/my_robot_comms' returned '0': PYTHONPATH=/home/huy/ros_ws/build/my_robot_comms/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/my_robot_comms build --build-base /home/huy/ros_ws/build/my_robot_comms/build install --record /home/huy/ros_ws/build/my_robot_comms/install.log --single-version-externally-managed install_data

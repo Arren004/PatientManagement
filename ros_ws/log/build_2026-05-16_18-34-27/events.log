@@ -1,0 +1,133 @@
+[0.000000] (-) TimerEvent: {}
+[0.007729] (-) JobUnselected: {'identifier': 'mqtt_bridge'}
+[0.016197] (-) JobUnselected: {'identifier': 'my_python_pkg'}
+[0.016616] (-) JobUnselected: {'identifier': 'my_robot_description'}
+[0.016910] (-) JobUnselected: {'identifier': 'rplidar_ros'}
+[0.017244] (my_robot_comms) JobQueued: {'identifier': 'my_robot_comms', 'dependencies': OrderedDict()}
+[0.017568] (my_robot_comms) JobStarted: {'identifier': 'my_robot_comms'}
+[0.118546] (-) TimerEvent: {}
+[0.223119] (-) TimerEvent: {}
+[0.331135] (-) TimerEvent: {}
+[0.431957] (-) TimerEvent: {}
+[0.532873] (-) TimerEvent: {}
+[0.633770] (-) TimerEvent: {}
+[0.734719] (-) TimerEvent: {}
+[0.836443] (-) TimerEvent: {}
+[0.939792] (-) TimerEvent: {}
+[1.041422] (-) TimerEvent: {}
+[1.142519] (-) TimerEvent: {}
+[1.243307] (-) TimerEvent: {}
+[1.344037] (-) TimerEvent: {}
+[1.444854] (-) TimerEvent: {}
+[1.545634] (-) TimerEvent: {}
+[1.646392] (-) TimerEvent: {}
+[1.747228] (-) TimerEvent: {}
+[1.848026] (-) TimerEvent: {}
+[1.948843] (-) TimerEvent: {}
+[2.049707] (-) TimerEvent: {}
+[2.150623] (-) TimerEvent: {}
+[2.251787] (-) TimerEvent: {}
+[2.352912] (-) TimerEvent: {}
+[2.454904] (-) TimerEvent: {}
+[2.559668] (-) TimerEvent: {}
+[2.661289] (-) TimerEvent: {}
+[2.767218] (-) TimerEvent: {}
+[2.868553] (-) TimerEvent: {}
+[2.969949] (-) TimerEvent: {}
+[3.070739] (-) TimerEvent: {}
+[3.171555] (-) TimerEvent: {}
+[3.272473] (-) TimerEvent: {}
+[3.373447] (-) TimerEvent: {}
+[3.476302] (-) TimerEvent: {}
+[3.577134] (-) TimerEvent: {}
+[3.677912] (-) TimerEvent: {}
+[3.778780] (-) TimerEvent: {}
+[3.879715] (-) TimerEvent: {}
+[3.980517] (-) TimerEvent: {}
+[4.081270] (-) TimerEvent: {}
+[4.182093] (-) TimerEvent: {}
+[4.283712] (-) TimerEvent: {}
+[4.384485] (-) TimerEvent: {}
+[4.485381] (-) TimerEvent: {}
+[4.586260] (-) TimerEvent: {}
+[4.687177] (-) TimerEvent: {}
+[4.788060] (-) TimerEvent: {}
+[4.888890] (-) TimerEvent: {}
+[4.989758] (-) TimerEvent: {}
+[5.090786] (-) TimerEvent: {}
+[5.192023] (-) TimerEvent: {}
+[5.292795] (-) TimerEvent: {}
+[5.393597] (-) TimerEvent: {}
+[5.494534] (-) TimerEvent: {}
+[5.595813] (-) TimerEvent: {}
+[5.623308] (my_robot_comms) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'egg_info', '--egg-base', '../../build/my_robot_comms', 'build', '--build-base', '/home/huy/ros_ws/build/my_robot_comms/build', 'install', '--record', '/home/huy/ros_ws/build/my_robot_comms/install.log', '--single-version-externally-managed', 'install_data'], 'cwd': '/home/huy/ros_ws/src/my_robot_comms', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'USER': 'huy', 'LC_TIME': 'vi_VN', 'SSH_AGENT_PID': '1557', 'XDG_SESSION_TYPE': 'x11', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/aarch64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/home/huy', 'OLDPWD': '/home/huy', 'ROS_PYTHON_VERSION': '3', 'GTK_MODULES': 'gail:atk-bridge', 'LC_MONETARY': 'vi_VN', 'MANAGERPID': '1299', 'SYSTEMD_EXEC_PID': '2011', 'XRDP_PULSE_SOURCE_SOCKET': 'xrdp_chansrv_audio_in_socket_10', 'XRDP_PULSE_SINK_SOCKET': 'xrdp_chansrv_audio_out_socket_10', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLORTERM': 'truecolor', 'TERMINATOR_DBUS_NAME': 'net.tenshu.Terminator2bcb3aa092f2b6032576f3fd56ad9afe9', 'GIO_LAUNCHED_DESKTOP_FILE_PID': '16815', 'PULSE_SCRIPT': '/etc/xrdp/pulse/default.pa', 'IM_CONFIG_PHASE': '1', 'COLCON_PREFIX_PATH': '/home/huy/ros_ws/install', 'ROS_DISTRO': 'humble', 'GTK_IM_MODULE': 'ibus', 'LOGNAME': 'huy', 'JOURNAL_STREAM': '8:27087', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'ROS_LOCALHOST_ONLY': '0', 'PATH': '/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin', 'SESSION_MANAGER': 'local/huy-desktop:@/tmp/.ICE-unix/1703,unix/huy-desktop:/tmp/.ICE-unix/1703', 'INVOCATION_ID': '2ced1ba9f1734d81a4f25b6082799216', 'XDG_MENU_PREFIX': 'gnome-', 'LC_ADDRESS': 'vi_VN', 'XRDP_SOCKET_PATH': '/run/xrdp/sockdir', 'XDG_RUNTIME_DIR': '/run/user/1000', 'DISPLAY': ':10.0', 'TERMINATOR_DBUS_PATH': '/net/tenshu/Terminator2', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'GNOME', 'IBUS_DISABLE_SNOOPER': '1', 'LC_TELEPHONE': 'vi_VN', 'XMODIFIERS': '@im=ibus', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'AMENT_PREFIX_PATH': '/home/huy/ros_ws/install/my_robot_comms:/opt/ros/humble', 'UID': '1000', 'SHELL': '/bin/bash', 'LC_NAME': 'vi_VN', 'TERMINATOR_UUID': 'urn:uuid:d851ad75-790d-4117-97a9-707debc3f747', 'QT_ACCESSIBILITY': '1', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'XRDP_SESSION': '1', 'LC_MEASUREMENT': 'vi_VN', 'GPG_AGENT_INFO': '/run/user/1000/gnupg/S.gpg-agent:0:1', 'LC_IDENTIFICATION': 'vi_VN', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/huy/ros_ws/build/my_robot_comms', 'LC_ALL': 'en_US.UTF-8', 'CLUTTER_IM_MODULE': 'ibus', 'XDG_DATA_DIRS': '/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'PYTHONPATH': '/home/huy/ros_ws/build/my_robot_comms/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages:/home/huy/ros_ws/build/my_robot_comms:/home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'LC_NUMERIC': 'vi_VN', 'LC_PAPER': 'vi_VN', 'COLCON': '1', 'VTE_VERSION': '6800'}, 'shell': False}
+[5.696018] (-) TimerEvent: {}
+[5.796861] (-) TimerEvent: {}
+[5.897590] (-) TimerEvent: {}
+[5.998418] (-) TimerEvent: {}
+[6.099288] (-) TimerEvent: {}
+[6.200117] (-) TimerEvent: {}
+[6.300872] (-) TimerEvent: {}
+[6.401682] (-) TimerEvent: {}
+[6.502438] (-) TimerEvent: {}
+[6.603243] (-) TimerEvent: {}
+[6.704012] (-) TimerEvent: {}
+[6.804792] (-) TimerEvent: {}
+[6.905519] (-) TimerEvent: {}
+[7.006213] (-) TimerEvent: {}
+[7.106981] (-) TimerEvent: {}
+[7.207776] (-) TimerEvent: {}
+[7.308536] (-) TimerEvent: {}
+[7.409262] (-) TimerEvent: {}
+[7.457308] (my_robot_comms) StdoutLine: {'line': b'running egg_info\n'}
+[7.460039] (my_robot_comms) StdoutLine: {'line': b'creating ../../build/my_robot_comms/my_robot_comms.egg-info\n'}
+[7.460913] (my_robot_comms) StdoutLine: {'line': b'writing ../../build/my_robot_comms/my_robot_comms.egg-info/PKG-INFO\n'}
+[7.463217] (my_robot_comms) StdoutLine: {'line': b'writing dependency_links to ../../build/my_robot_comms/my_robot_comms.egg-info/dependency_links.txt\n'}
+[7.465962] (my_robot_comms) StdoutLine: {'line': b'writing entry points to ../../build/my_robot_comms/my_robot_comms.egg-info/entry_points.txt\n'}
+[7.466658] (my_robot_comms) StdoutLine: {'line': b'writing requirements to ../../build/my_robot_comms/my_robot_comms.egg-info/requires.txt\n'}
+[7.469477] (my_robot_comms) StdoutLine: {'line': b'writing top-level names to ../../build/my_robot_comms/my_robot_comms.egg-info/top_level.txt\n'}
+[7.470521] (my_robot_comms) StdoutLine: {'line': b"writing manifest file '../../build/my_robot_comms/my_robot_comms.egg-info/SOURCES.txt'\n"}
+[7.482600] (my_robot_comms) StdoutLine: {'line': b"reading manifest file '../../build/my_robot_comms/my_robot_comms.egg-info/SOURCES.txt'\n"}
+[7.486045] (my_robot_comms) StdoutLine: {'line': b"writing manifest file '../../build/my_robot_comms/my_robot_comms.egg-info/SOURCES.txt'\n"}
+[7.486782] (my_robot_comms) StdoutLine: {'line': b'running build\n'}
+[7.487452] (my_robot_comms) StdoutLine: {'line': b'running build_py\n'}
+[7.488219] (my_robot_comms) StdoutLine: {'line': b'creating /home/huy/ros_ws/build/my_robot_comms/build\n'}
+[7.489023] (my_robot_comms) StdoutLine: {'line': b'creating /home/huy/ros_ws/build/my_robot_comms/build/lib\n'}
+[7.489525] (my_robot_comms) StdoutLine: {'line': b'creating /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms\n'}
+[7.489977] (my_robot_comms) StdoutLine: {'line': b'copying my_robot_comms/serial_bridge_node.py -> /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms\n'}
+[7.490590] (my_robot_comms) StdoutLine: {'line': b'copying my_robot_comms/__init__.py -> /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms\n'}
+[7.491268] (my_robot_comms) StdoutLine: {'line': b'copying my_robot_comms/handle_data_web.py -> /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms\n'}
+[7.491966] (my_robot_comms) StdoutLine: {'line': b'copying my_robot_comms/web_receiver.py -> /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms\n'}
+[7.493435] (my_robot_comms) StdoutLine: {'line': b'running install\n'}
+[7.494964] (my_robot_comms) StdoutLine: {'line': b'running install_lib\n'}
+[7.500495] (my_robot_comms) StdoutLine: {'line': b'creating /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms\n'}
+[7.502740] (my_robot_comms) StdoutLine: {'line': b'copying /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms/serial_bridge_node.py -> /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms\n'}
+[7.503387] (my_robot_comms) StdoutLine: {'line': b'copying /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms/__init__.py -> /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms\n'}
+[7.504003] (my_robot_comms) StdoutLine: {'line': b'copying /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms/handle_data_web.py -> /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms\n'}
+[7.504572] (my_robot_comms) StdoutLine: {'line': b'copying /home/huy/ros_ws/build/my_robot_comms/build/lib/my_robot_comms/web_receiver.py -> /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms\n'}
+[7.506775] (my_robot_comms) StdoutLine: {'line': b'byte-compiling /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms/serial_bridge_node.py to serial_bridge_node.cpython-310.pyc\n'}
+[7.509561] (-) TimerEvent: {}
+[7.514744] (my_robot_comms) StdoutLine: {'line': b'byte-compiling /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms/__init__.py to __init__.cpython-310.pyc\n'}
+[7.516645] (my_robot_comms) StdoutLine: {'line': b'byte-compiling /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms/handle_data_web.py to handle_data_web.cpython-310.pyc\n'}
+[7.522363] (my_robot_comms) StdoutLine: {'line': b'byte-compiling /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms/web_receiver.py to web_receiver.cpython-310.pyc\n'}
+[7.526366] (my_robot_comms) StdoutLine: {'line': b'running install_data\n'}
+[7.527658] (my_robot_comms) StdoutLine: {'line': b'creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index\n'}
+[7.528646] (my_robot_comms) StdoutLine: {'line': b'creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index\n'}
+[7.529491] (my_robot_comms) StdoutLine: {'line': b'creating /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index/packages\n'}
+[7.530618] (my_robot_comms) StdoutLine: {'line': b'copying resource/my_robot_comms -> /home/huy/ros_ws/install/my_robot_comms/share/ament_index/resource_index/packages\n'}
+[7.531678] (my_robot_comms) StdoutLine: {'line': b'copying package.xml -> /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms\n'}
+[7.532176] (my_robot_comms) StdoutLine: {'line': b'creating /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms/launch\n'}
+[7.532716] (my_robot_comms) StdoutLine: {'line': b'copying launch/receiver.launch.py -> /home/huy/ros_ws/install/my_robot_comms/share/my_robot_comms/launch\n'}
+[7.533192] (my_robot_comms) StdoutLine: {'line': b'running install_egg_info\n'}
+[7.540339] (my_robot_comms) StdoutLine: {'line': b'Copying ../../build/my_robot_comms/my_robot_comms.egg-info to /home/huy/ros_ws/install/my_robot_comms/lib/python3.10/site-packages/my_robot_comms-0.0.0-py3.10.egg-info\n'}
+[7.559137] (my_robot_comms) StdoutLine: {'line': b'running install_scripts\n'}
+[7.609787] (-) TimerEvent: {}
+[7.646287] (my_robot_comms) StdoutLine: {'line': b'Installing handle_data_web script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms\n'}
+[7.649380] (my_robot_comms) StdoutLine: {'line': b'Installing serial_bridge script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms\n'}
+[7.650525] (my_robot_comms) StdoutLine: {'line': b'Installing web_receiver script to /home/huy/ros_ws/install/my_robot_comms/lib/my_robot_comms\n'}
+[7.652269] (my_robot_comms) StdoutLine: {'line': b"writing list of installed files to '/home/huy/ros_ws/build/my_robot_comms/install.log'\n"}
+[7.710025] (-) TimerEvent: {}
+[7.796820] (my_robot_comms) CommandEnded: {'returncode': 0}
+[7.810187] (-) TimerEvent: {}
+[7.858456] (my_robot_comms) JobEnded: {'identifier': 'my_robot_comms', 'rc': 0}
+[7.862096] (-) EventReactorShutdown: {}

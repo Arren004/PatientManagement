@@ -3,10 +3,19 @@
 // ============================================
 
 import { MENU_ITEMS } from "../data/constants.js";
+import authService from "../services/authService.js";
 
 export function renderMenuView(container, activeView) {
   container.innerHTML = "";
+  const user = authService.getCurrentUser();
+  if (user && user.role === 'config') {
+    return;
+  }
   MENU_ITEMS.forEach((item) => {
+    // Chỉ hiển thị mục Cơ sở dữ liệu cho Y tá trưởng
+    if (item.key === "dbexplorer" && !authService.isHeadNurse()) {
+      return;
+    }
     const button = document.createElement("button");
     button.className = "menu-item" + (item.key === activeView ? " active" : "");
     button.innerHTML = `<span>${item.label}</span>`;

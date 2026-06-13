@@ -18,6 +18,7 @@ export function renderLogsView(
       <tr>
         <td>${x.date}</td>
         <td>${x.patient}</td>
+        <td>${x.medicines}</td>
         <td>${x.nurse}</td>
         <td>${x.robot}</td>
         <td><span class="badge ${x.status}">${formatDeliveryStatus(x.status)}</span></td>
@@ -44,10 +45,7 @@ export function renderLogsView(
 
   container.innerHTML = `
     <div class="section-head">
-      <div>
-        <h2>Nhật ký & thống kê</h2>
-        <p>Theo dõi hiệu suất giao thuốc tự động</p>
-      </div>
+   
     </div>
 
     <div class="card tabs-row">
@@ -93,12 +91,13 @@ export function renderLogsView(
             <tr>
               <th>Ngày</th>
               <th>Bệnh nhân</th>
-              <th>Y tá</th>
+              <th>Thuốc</th>
+              <th>Y tá giao</th>
               <th>Robot</th>
               <th>Trạng thái</th>
             </tr>
           </thead>
-          <tbody>${deliveryRows || "<tr><td colspan='5'>Không có dữ liệu.</td></tr>"}</tbody>
+          <tbody>${deliveryRows || "<tr><td colspan='6'>Không có dữ liệu.</td></tr>"}</tbody>
         ` : `
           <thead>
             <tr>

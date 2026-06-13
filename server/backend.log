@@ -1,0 +1,14 @@
+INFO:     Will watch for changes in these directories: ['D:\\project\\DO_AN_TOT_NGHIEP\\PROJECT\\server']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [18680] using StatReload
+INFO:     Started server process [2112]
+INFO:     Waiting for application startup.
+Connected to MQTT Broker!
+[SPEED WATCHER] Watching v,w for robot 1
+[MQTT] Subscribed to /robots/1/delivered for robot feedback
+[SPEED WATCHER] Watching v,w for robot 10
+[MQTT] Subscribed to /robots/10/delivered for robot feedback
+[WATCHER] Start watching for new orders...
+INFO:     Application startup complete.
+[SPEED WATCHER] Initial velocity recorded for robot 1: (0.5, 1.0)
+[SPEED WATCHER] Initial velocity recorded for robot 10: (0.5, 1.0)

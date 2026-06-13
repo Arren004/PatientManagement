@@ -1,0 +1,5 @@
+[console_scripts]
+handle_data_web = my_robot_comms.handle_data_web:main
+serial_bridge = my_robot_comms.serial_bridge_node:main
+web_receiver = my_robot_comms.web_receiver:main
+

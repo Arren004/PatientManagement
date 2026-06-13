@@ -4,22 +4,74 @@
 
 import stateService from "./stateService.js";
 import authService from "./authService.js";
-import firebaseService from "./firebaseService.js";
+import dbService from "./dbService.js";
+const firebaseService = dbService;
 
 class LogService {
   // Lấy danh sách delivery logs
   getDeliveryLogs() {
-    return stateService.getState().deliveryLogs || [];
+    const commands = stateService.getState().deliveryCommands || [];
+    const logs = [];
+    commands.forEach((cmd) => {
+      // Bỏ qua các lệnh mở nắp (open_lid)
+      if (cmd.status === "open_lid") return;
+
+      const bins = Array.isArray(cmd.bins) ? cmd.bins : [];
+      let dateStr = "";
+      if (cmd.createdAt) {
+        const date = new Date(cmd.createdAt);
+        if (!isNaN(date.getTime())) {
+          const pad = (n) => String(n).padStart(2, '0');
+          dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+      }
+      
+      bins.forEach((bin) => {
+        // Bỏ qua các hành động mở nắp trong bins nếu có
+        if (bin.status === "open_lid" || bin.patientName === "OPEN" || bin.note === "OPEN") return;
+
+        let status = "delivering";
+        const binStatus = String(bin.status || "").toLowerCase();
+        if (binStatus === "delivered" || binStatus === "thành công" || binStatus === "success") {
+          status = "success";
+        } else if (binStatus === "failed" || binStatus === "thất bại") {
+          status = "failed";
+        }
+        
+        const medList = Array.isArray(bin.medicines) ? bin.medicines.map(m => `${m.name}${m.dosage ? ' (' + m.dosage + ')' : ''}`).join(', ') : "";
+        
+        logs.push({
+          id: `${cmd.id}_${bin.slot}`,
+          date: dateStr,
+          patient: bin.patientName || "Không rõ",
+          medicines: medList || "—",
+          nurse: cmd.nurseName || cmd.actor || "Y tá",
+          robot: cmd.robotId || "Robot",
+          status: status
+        });
+      });
+    });
+    return logs.sort((a, b) => b.date.localeCompare(a.date));
   }
 
   // Lấy danh sách system logs từ Firestore
   async getSystemLogs() {
     const logs = await firebaseService.getSystemLogsFromCloud();
     // Đảm bảo có trường at (thời gian) cho sorting/filter
-    return logs.map(x => ({
-      ...x,
-      at: x.at || (x.createdAt && x.createdAt.toDate ? x.createdAt.toDate().toISOString().slice(0, 16).replace('T', ' ') : "")
-    }));
+    return logs.map(x => {
+      let atStr = x.at;
+      if (!atStr && x.createdAt) {
+        const date = new Date(x.createdAt);
+        if (!isNaN(date.getTime())) {
+          const pad = (n) => String(n).padStart(2, '0');
+          atStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+      }
+      return {
+        ...x,
+        at: atStr || ""
+      };
+    });
   }
 
   // Lọc delivery logs
@@ -40,7 +92,7 @@ class LogService {
     if (filters.search && filters.search.trim()) {
       const query = filters.search.toLowerCase();
       logs = logs.filter((x) => {
-        const text = [x.date, x.patient, x.nurse, x.robot, x.status].join(" ").toLowerCase();
+        const text = [x.date, x.patient, x.medicines, x.nurse, x.robot, x.status].join(" ").toLowerCase();
         return text.includes(query);
       });
     }
@@ -96,9 +148,8 @@ class LogService {
   // Lấy giờ hiện tại định dạng log
   getNowForLog() {
     const d = new Date();
-    const date = d.toISOString().slice(0, 10);
-    const time = d.toTimeString().slice(0, 5);
-    return `${date} ${time}`;
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
   // Lấy thống kê delivery

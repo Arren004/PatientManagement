@@ -5,6 +5,7 @@
 
 import roomService from "../services/roomService.js";
 import authService from "../services/authService.js";
+import stateService from "../services/stateService.js";
 import { renderRoomListView, renderRoomDetailView } from "../views/roomView.js";
 
 
@@ -19,6 +20,9 @@ class RoomController {
         authService.currentUser = JSON.parse(userStr);
       } catch (e) {}
     }
+    if (typeof window !== "undefined") {
+      window.roomController = this;
+    }
   }
 
   init() {
@@ -27,6 +31,14 @@ class RoomController {
     document.addEventListener("backToRoomList", () => {
       this.currentRoomId = null;
       this.renderView();
+    });
+
+    stateService.subscribe(() => {
+      // Chỉ re-render khi view phòng bệnh đang được hiển thị
+      const viewRooms = document.getElementById("view-rooms");
+      if (viewRooms && viewRooms.offsetParent !== null) {
+        this.renderView();
+      }
     });
   }
 
@@ -105,6 +117,12 @@ class RoomController {
       const name = modal.querySelector("#room-name-input").value.trim();
       const bedCount = Math.max(1, parseInt(modal.querySelector("#bed-count-input").value));
       if (!name || !bedCount) return;
+      // Kiểm tra trùng tên phòng
+      const allRooms = await roomService.getRooms();
+      if (allRooms.some(r => (r.name || "").toString().toLowerCase() === name.toLowerCase())) {
+        alert("Phòng này đã tồn tại. Vui lòng nhập số phòng khác.");
+        return;
+      }
       // Lấy vị trí từng giường nếu có
       const beds = Array.from({length: bedCount}, (_, idx) => {
         const x = parseFloat(modal.querySelector(`[name='bed-x-${idx}']`)?.value);

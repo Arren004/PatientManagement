@@ -2,7 +2,8 @@
 // AUTH SERVICE - Quản lý xác thực và quyền hạn
 // ============================================
 
-import firebaseService from "./firebaseService.js";
+import dbService from "./dbService.js";
+const firebaseService = dbService;
 import { ROLE_PERMISSIONS } from "../data/constants.js";
 
 class AuthService {
@@ -42,7 +43,7 @@ class AuthService {
       .toLowerCase()
       .replace(/\s+/g, "_");
 
-    if (["head_nurse", "headnurse", "head-nurse", "head_nurse_", "yta_truong", "y_ta_truong", "ytatruong", "yta_truong"].includes(value)) {
+    if (["head_nurse", "headnurse", "head-nurse", "head_nurse_", "yta_truong", "y_ta_truong", "ytatruong", "yta_truong", "admin", "administrator"].includes(value)) {
       return "head_nurse";
     }
 
@@ -75,6 +76,25 @@ class AuthService {
   // Đăng nhập với Firebase Auth
   // email format: username@yourapp.local hoặc email thực
   async login(emailOrUsername, password) {
+    const usernameTrimmed = String(emailOrUsername || "").trim().toLowerCase();
+    
+    // TÀI KHOẢN MẪU KHỞI TẠO CẤU HÌNH OFFLINE
+    if (usernameTrimmed === 'config' && password === 'config') {
+      this.currentUser = {
+        uid: 'user_config_local',
+        email: 'config@smarthospital.local',
+        fullName: 'Kỹ thuật viên LAN',
+        role: 'config',
+        status: 'active',
+        createdAt: new Date().toISOString()
+      };
+      localStorage.setItem("currentUser", JSON.stringify(this.currentUser));
+      return {
+        success: true,
+        user: this.currentUser
+      };
+    }
+
     if (this.loginInFlight) {
       return {
         success: false,
@@ -186,6 +206,58 @@ class AuthService {
     return result;
   }
 
+  async changePassword(currentPassword, newPassword) {
+    if (!this.currentUser) {
+      return { success: false, message: "Bạn cần đăng nhập để đổi mật khẩu." };
+    }
+
+    if (!currentPassword || !newPassword) {
+      return { success: false, message: "Vui lòng nhập đầy đủ mật khẩu hiện tại và mật khẩu mới." };
+    }
+
+    if (String(newPassword).length < 6) {
+      return { success: false, message: "Mật khẩu mới phải có ít nhất 6 ký tự." };
+    }
+
+    const result = await firebaseService.changeCurrentUserPassword(currentPassword, newPassword);
+    if (!result.success) {
+      if (result.code === "auth/wrong-password" || result.code === "auth/invalid-credential") {
+        return { success: false, message: "Mật khẩu hiện tại không đúng." };
+      }
+
+      if (result.code === "auth/weak-password") {
+        return { success: false, message: "Mật khẩu mới quá yếu." };
+      }
+
+      return { success: false, message: "Không thể đổi mật khẩu. Vui lòng thử lại." };
+    }
+
+    return { success: true, message: "Đã đổi mật khẩu thành công." };
+  }
+
+  async updateCurrentProfile(data) {
+    if (!this.currentUser) {
+      return { success: false, message: "Bạn cần đăng nhập để cập nhật hồ sơ." };
+    }
+
+    const updates = {
+      ...data,
+    };
+
+    const result = await firebaseService.updateUserProfile(this.currentUser.uid, updates);
+    if (!result.success) {
+      return { success: false, message: "Không thể cập nhật hồ sơ. Vui lòng thử lại." };
+    }
+
+    this.currentUser = {
+      ...this.currentUser,
+      ...updates,
+    };
+    localStorage.setItem("currentUser", JSON.stringify(this.currentUser));
+
+    return { success: true, message: "Đã cập nhật hồ sơ cá nhân.", user: this.currentUser };
+  }
+
   // Lấy user hiện tại
   getCurrentUser() {
     return this.currentUser;
@@ -218,6 +290,19 @@ class AuthService {
 
   // Lắng nghe thay đổi auth state
   onAuthStateChanged(callback) {
+    // Khôi phục phiên làm việc của tài khoản cấu hình local offline
+    const saved = localStorage.getItem("currentUser");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.role === 'config') {
+          this.currentUser = parsed;
+          callback(this.currentUser);
+          return () => {}; // Hàm cleanup giả lập
+        }
+      } catch (e) {}
+    }
+
     return firebaseService.onAuthStateChanged(async (firebaseUser) => {
       if (firebaseUser) {
         const profileResult = await firebaseService.getUserProfile(firebaseUser.uid);

@@ -32,6 +32,12 @@ export function formatUserStatus(status) {
   return capitalize(status);
 }
 
+export function formatWorkingStatus(status) {
+  if (status === "active") return "Đang hoạt động";
+  if (status === "temporary_leave") return "Tạm nghỉ";
+  return capitalize(status);
+}
+
 export function formatLogResult(result) {
   if (result === "success") return "Thành công";
   if (result === "failed") return "Thất bại";

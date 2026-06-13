@@ -14,7 +14,14 @@ class LogsController {
   }
 
   init() {
-    // Render sẽ được gọi khi switch view
+    // Tự động render lại khi stateService thay đổi (chỉ khi đang ở tab nhật ký)
+    import("../services/stateService.js").then(({ default: stateService }) => {
+      stateService.subscribe(() => {
+        if (this.viewContainer && this.viewContainer.offsetParent !== null) {
+          this.renderView();
+        }
+      });
+    });
   }
 
   async renderView(searchQuery = "") {
